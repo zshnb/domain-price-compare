@@ -1,0 +1,9 @@
+{
+	"id": "1s01b4uwLqSURLF",
+	"json": "{\"id\":\"1s01b4uwLqSURLF\",\"url\":\"https://www.godaddy.com/zh-sg/domainsearch/find?itc=dlp_domain&domainToCheck=sleek.com&tmskey=1dom_03_buydomain\",\"uniqueKey\":\"https://www.godaddy.com/zh-sg/domainsearch/find?domainToCheck=sleek.com&itc=dlp_domain&tmskey=1dom_03_buydomain\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{}}",
+	"method": "GET",
+	"orderNo": 1712415631691,
+	"retryCount": 0,
+	"uniqueKey": "https://www.godaddy.com/zh-sg/domainsearch/find?domainToCheck=sleek.com&itc=dlp_domain&tmskey=1dom_03_buydomain",
+	"url": "https://www.godaddy.com/zh-sg/domainsearch/find?itc=dlp_domain&domainToCheck=sleek.com&tmskey=1dom_03_buydomain"
+}
