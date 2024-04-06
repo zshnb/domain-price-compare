@@ -9,7 +9,9 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-24 gap-y-4">
       <DomainForm onFetchDomainInfo={(domainInfo) => {
-        setDomains([...domains, domainInfo]);
+        setDomains(prevState => {
+          return [...prevState, domainInfo]
+        });
       }}/>
       <DomainTable data={domains}/>
     </main>

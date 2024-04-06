@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import {DomainInfo} from "@/components/domainTable/domainTable.type";
+import {DomainInfo, DomainRegister} from "@/components/domainTable/domainTable.type";
 
 const formSchema = z.object({
   domain: z.string().min(1, {
@@ -31,12 +31,14 @@ export default function DomainForm({onFetchDomainInfo}: DomainFormProps) {
     },
   })
 
-  // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
-    fetch(`/api/tencent?domain=${values.domain}`).then(async res => {
-      const json = await res.json()
-      onFetchDomainInfo(json.data)
-    })
+    const registers = Object.keys(DomainRegister)
+    Promise.all(registers.map(it => {
+      fetch(`/api/${it}?domain=${values.domain}`).then(async res => {
+        const json = await res.json()
+        onFetchDomainInfo(json.data)
+      }).catch(error => {})
+    }))
   }
 
   return (

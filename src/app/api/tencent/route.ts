@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {DomainInfo} from "@/components/domainTable/domainTable.type";
+import {DomainInfo, DomainRegister} from "@/components/domainTable/domainTable.type";
 
 type TencentResult = {
   DomainName: string
@@ -25,7 +25,6 @@ export async function GET(req: NextRequest) {
     })
   })
   const json = await response.json();
-  console.log(JSON.stringify(json, null, 2));
   const domainInfo = convert(json.result.data.DomainList[0])
   return NextResponse.json({data: domainInfo})
 }
@@ -36,6 +35,7 @@ function convert(result: TencentResult): DomainInfo {
     available: result.Available,
     price: result.Price,
     realPrice: result.RealPrice,
-    buyLink: `https://buy.cloud.tencent.com/domain/?domain=${result.DomainName}`
+    buyLink: `https://buy.cloud.tencent.com/domain/?domain=${result.DomainName}`,
+    register: DomainRegister.tencent
   }
 }

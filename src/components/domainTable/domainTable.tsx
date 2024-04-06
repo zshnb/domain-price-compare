@@ -15,12 +15,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {DomainInfo} from "@/components/domainTable/domainTable.type";
+import {DomainInfo, DomainRegister} from "@/components/domainTable/domainTable.type";
 import {Button, buttonVariants} from "@/components/ui/button";
 import {Check, ChevronRight, MousePointer2, X} from "lucide-react";
 import Link from "next/link";
 
 const columns: ColumnDef<DomainInfo>[] = [
+  {
+    accessorKey: "register",
+    header: "注册商",
+    cell: ({row}) => {
+      const register = row.getValue<string>('register')
+      return <p>{register}</p>
+    }
+  },
   {
     accessorKey: "domain",
     header: "域名",
