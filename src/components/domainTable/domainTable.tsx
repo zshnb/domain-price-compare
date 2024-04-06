@@ -16,8 +16,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {DomainInfo} from "@/components/domainTable/domainTable.type";
-import {Button} from "@/components/ui/button";
+import {Button, buttonVariants} from "@/components/ui/button";
 import {Check, ChevronRight, MousePointer2, X} from "lucide-react";
+import Link from "next/link";
 
 const columns: ColumnDef<DomainInfo>[] = [
   {
@@ -47,23 +48,20 @@ const columns: ColumnDef<DomainInfo>[] = [
     accessorKey: "buyLink",
     header: '购买链接',
     cell: ({row}) => {
-      const link = row.getValue('buyLink')
+      const link = row.getValue<string>('buyLink')
       return (
-        <Button variant="ghost" size="icon">
+        <Link className={buttonVariants({ variant: "outline" })} href={link} target='_blank'>
           <MousePointer2 className="h-4 w-4" />
-        </Button>
+        </Link>
       )
     }
   }
 ]
-export default function DomainTable() {
-  const data: DomainInfo[] = [{
-    domain: 'zshnb.com',
-    price: 30,
-    realPrice: 15,
-    available: false,
-    buyLink: ''
-  }]
+
+export type DomainTableProps = {
+  data: DomainInfo[]
+}
+export default function DomainTable({data}: DomainTableProps) {
   const table = useReactTable({
     data,
     columns,
