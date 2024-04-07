@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PlaywrightCrawler, ProxyConfiguration, RequestQueue } from "@crawlee/playwright";
-import { DomainInfo } from "./domain.type";
+import { DomainInfo, NameSiloResponse } from "./domain.type";
+import sleep from "sleep-promise";
 
 @Injectable()
 export class DomainService {
@@ -112,5 +113,46 @@ export class DomainService {
 
       await crawler.run()
     })
+  }
+
+  async namesilo(domain: string): Promise<DomainInfo> {
+    const array = domain.split('.')
+    async function getCheckId() {
+      const formData = new FormData();
+      formData.append("domains[]", array[0]);
+      formData.append("tlds[]", array[1]);
+      const response = await fetch('https://www.namesilo.com/public/api/domains/bulk-check', {
+        method: 'POST',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0'
+        },
+        body: formData
+      })
+      if (!response.ok) {
+        console.log(await response.text());
+        return ''
+      }
+      const json = await response.json()
+      return json.data.checkId
+    }
+
+    const checkId = await getCheckId()
+    await sleep(1000)
+    const response = await fetch(`https://www.namesilo.com/public/api/domains/results/${checkId}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0'
+      },
+    })
+    if (!response.ok) {
+      throw new Error('namesilo search domain info error')
+    }
+    const json = await response.json() as NameSiloResponse
+    const domainInfo = json.data.domains[0]
+    return {
+      available: domainInfo.available,
+      price: `$${domainInfo.currentPrice}`,
+      realPrice: `$${domainInfo.currentPrice}`,
+      domain
+    }
   }
 }

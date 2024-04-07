@@ -4,3 +4,13 @@ export type DomainInfo ={
   realPrice: string
   available: boolean
 }
+
+export type NameSiloResponse = {
+  data: {
+    domains: {
+      available: boolean,
+      domain: string,
+      currentPrice: number
+    }[]
+  }
+}
