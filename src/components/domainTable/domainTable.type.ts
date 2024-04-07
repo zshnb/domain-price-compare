@@ -9,5 +9,6 @@ export type DomainInfo = {
 
 export const DomainRegister = {
   tencent: '腾讯',
-  aliyun: '阿里云'
+  aliyun: '阿里云',
+  godaddy: 'godaddy'
 }

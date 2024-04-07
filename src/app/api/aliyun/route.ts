@@ -31,6 +31,9 @@ export async function GET(req: NextRequest) {
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
     },
   })
+  if (!response.ok) {
+    throw new Error('get aliyun domain info error')
+  }
   const text = await response.text();
   const pattern = `(?<=__jp1\\()(.|\\n)*(?=\\);)`
   const re = new RegExp(pattern, 'gm')
