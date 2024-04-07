@@ -1,29 +1,55 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 import { PlaywrightCrawler, ProxyConfiguration, RequestQueue } from "@crawlee/playwright";
+import { DomainInfo } from "./domain.type";
 
 @Injectable()
 export class DomainService {
-  async godaddy(domain: string) {
+  private logger: Logger = new Logger(DomainService.name)
+  constructor() {
+  }
+  async godaddy(domain: string): Promise<DomainInfo> {
     const requestQueue = await RequestQueue.open()
     await requestQueue.addRequest({ url: 'https://www.godaddy.com' })
     return new Promise(async (resolve, reject) => {
       const crawler = new PlaywrightCrawler({
         requestQueue,
         requestHandlerTimeoutSecs: 60 * 60,
+        maxRequestRetries: 10,
         requestHandler: async ({ page }) => {
           await page.locator('.ux-search')
             .getByPlaceholder('Type the domain you want')
-            .fill('sleek123.com')
+            .fill(domain)
           await page.getByTestId('domain-search-box-button')
             .click()
-          await page.getByTestId('price-line')
+
+          await page.locator('.favorites-div')
             .click()
-          const mainPrice = page.getByTestId('pricing-main-price')
-          const oldPrice = page.getByTestId('pricing-strikethrough-price')
-          resolve({
-            mainPrice,
-            oldPrice
-          })
+
+          const priceLineLocator = page.getByTestId('price-line')
+          if (await priceLineLocator.isVisible()) {
+            const mainPrice = (await page.getByTestId('pricing-main-price').innerText()) as string
+            const oldPrice = (await page.getByTestId('pricing-strikethrough-price').innerText()) as string
+
+            if (!mainPrice || !oldPrice) {
+              this.logger.error('godaddy search domain info error')
+              reject(new Error())
+            } else {
+              resolve({
+                domain,
+                price: oldPrice,
+                realPrice: mainPrice,
+                available: true
+              })
+            }
+          } else {
+            resolve({
+              domain,
+              price: '',
+              realPrice: '',
+              available: false
+            })
+          }
+
         },
         proxyConfiguration: new ProxyConfiguration({
           proxyUrls: ['http:127.0.0.1:7890']
