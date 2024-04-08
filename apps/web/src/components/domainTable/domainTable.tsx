@@ -56,12 +56,16 @@ const columns: ColumnDef<DomainInfo>[] = [
     accessorKey: "buyLink",
     header: '购买链接',
     cell: ({row}) => {
-      const link = row.getValue<string>('buyLink')
-      return (
-        <Link className={buttonVariants({ variant: "outline" })} href={link} target='_blank'>
-          <MousePointer2 className="h-4 w-4" />
-        </Link>
-      )
+      const link = row.getValue<string | undefined>('buyLink')
+      if (link !== '' && link !== undefined) {
+        return (
+          <Link className={buttonVariants({ variant: "outline" })} href={link} target='_blank'>
+            <MousePointer2 className="h-4 w-4" />
+          </Link>
+        )
+      } else {
+        return <></>
+      }
     }
   }
 ]

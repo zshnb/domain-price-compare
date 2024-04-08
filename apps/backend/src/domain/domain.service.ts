@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PlaywrightCrawler, ProxyConfiguration, RequestQueue } from "@crawlee/playwright";
 import {AliyunResponse, DomainInfo, NameSiloResponse} from "./domain.type";
 import sleep from "sleep-promise";
+import {v4 as uuid} from 'uuid'
 
 @Injectable()
 export class DomainService {
@@ -9,8 +10,8 @@ export class DomainService {
   constructor() {
   }
   async godaddy(domain: string): Promise<DomainInfo> {
-    const requestQueue = await RequestQueue.open()
-    await requestQueue.addRequest({ url: 'https://www.godaddy.com' })
+    const requestQueue = await RequestQueue.open(uuid())
+    await requestQueue.addRequest({ url: 'https://godaddy.com' })
     return new Promise(async (resolve, reject) => {
       const crawler = new PlaywrightCrawler({
         requestQueue,
@@ -26,8 +27,15 @@ export class DomainService {
           await page.locator('.favorites-div')
             .click()
 
-          const priceLineLocator = page.getByTestId('price-line')
-          if (await priceLineLocator.isVisible()) {
+          const domainTakenLocator = page.getByText('Domain Taken')
+          if (await domainTakenLocator.isVisible()) {
+            resolve({
+              domain,
+              price: '',
+              realPrice: '',
+              available: false
+            })
+          } else {
             const mainPrice = (await page.getByTestId('pricing-main-price').innerText()) as string
             const oldPrice = (await page.getByTestId('pricing-strikethrough-price').innerText()) as string
 
@@ -39,16 +47,10 @@ export class DomainService {
                 domain,
                 price: oldPrice,
                 realPrice: mainPrice,
-                available: true
+                available: true,
+                buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
               })
             }
-          } else {
-            resolve({
-              domain,
-              price: '',
-              realPrice: '',
-              available: false
-            })
           }
 
         },
@@ -62,7 +64,7 @@ export class DomainService {
   }
 
   async namecheap(domain: string): Promise<DomainInfo> {
-    const requestQueue = await RequestQueue.open()
+    const requestQueue = await RequestQueue.open(uuid())
     await requestQueue.addRequest({ url: 'https://www.namecheap.com' })
     return new Promise(async (resolve, reject) => {
       const crawler = new PlaywrightCrawler({
@@ -94,7 +96,8 @@ export class DomainService {
               available: true,
               price,
               realPrice: price,
-              domain
+              domain,
+              buyLink: `https://www.namecheap.com/domains/registration/results/?domain=${domain}`
             })
           } else {
             resolve({
@@ -148,11 +151,22 @@ export class DomainService {
     }
     const json = await response.json() as NameSiloResponse
     const domainInfo = json.data.domains[0]
-    return {
-      available: domainInfo.available,
-      price: `$${domainInfo.currentPrice}`,
-      realPrice: `$${domainInfo.currentPrice}`,
-      domain
+    if (domainInfo.available) {
+      return {
+        available: domainInfo.available,
+        price: `$${domainInfo.currentPrice}`,
+        realPrice: `$${domainInfo.currentPrice}`,
+        domain,
+        buyLink: `https://www.namesilo.com/domain/search-domains?query=${domain}`
+      }
+    } else {
+      return {
+        available: domainInfo.available,
+        price: '',
+        realPrice: '',
+        domain,
+        buyLink: ''
+      }
     }
   }
 
@@ -220,7 +234,7 @@ export class DomainService {
     return {
       available: json.module.domainDetail.avail === 1,
       price: `¥${json.module?.priceList?.at(0)?.money || 0}`,
-      realPrice: `$${json.module?.priceList?.at(0)?.money || 0}`,
+      realPrice: `¥${json.module?.priceList?.at(0)?.money || 0}`,
       domain,
       buyLink: `https://wanwang.aliyun.com/domain/searchresult/#/?keyword=${array[0]}&suffix=${array[1]}&=`,
     }
@@ -242,13 +256,23 @@ export class DomainService {
         SaveDomainSearch: false
       })
     })
-    const result = await response.json();
-    return {
-      domain: result.DomainName,
-      available: result.Available,
-      price: result.Price,
-      realPrice: result.RealPrice,
-      buyLink: `https://buy.cloud.tencent.com/domain/?domain=${result.DomainName}`,
+    const json = await response.json();
+    const tencentDomainInfo = json.result.data.DomainList[0]
+    if (tencentDomainInfo.Available) {
+      return {
+        domain: tencentDomainInfo.DomainName,
+        available: tencentDomainInfo.Available,
+        price: `¥${tencentDomainInfo.Price}`,
+        realPrice: `¥${tencentDomainInfo.RealPrice}`,
+        buyLink: `https://buy.cloud.tencent.com/domain/?domain=${tencentDomainInfo.DomainName}`,
+      }
+    } else {
+      return {
+        domain: tencentDomainInfo.DomainName,
+        available: tencentDomainInfo.Available,
+        price: '¥0',
+        realPrice: '¥0',
+      }
     }
   }
 }

@@ -6,7 +6,7 @@ export class DomainController {
   constructor(private readonly domainService: DomainService) {}
 
   @Get('godaddy')
-  async godaddy(@Query() domain: string) {
+  async godaddy(@Query('domain') domain: string) {
     try {
       const result = await this.domainService.godaddy(domain)
       return {
@@ -18,7 +18,7 @@ export class DomainController {
   }
 
   @Get('namecheap')
-  async namecheap(@Query() domain: string) {
+  async namecheap(@Query('domain') domain: string) {
     try {
       const result = await this.domainService.namecheap(domain)
       return {
@@ -30,7 +30,7 @@ export class DomainController {
   }
 
   @Get('namesilo')
-  async namesilo(@Query() domain: string) {
+  async namesilo(@Query('domain') domain: string) {
     try {
       const result = await this.domainService.namesilo(domain)
       return {
@@ -42,7 +42,7 @@ export class DomainController {
   }
 
   @Get('aliyun')
-  async aliyun(@Query() domain: string) {
+  async aliyun(@Query('domain') domain: string) {
     try {
       const result = await this.domainService.aliyun(domain)
       return {
@@ -54,13 +54,14 @@ export class DomainController {
   }
 
   @Get('tencent')
-  async tencent(@Query() domain: string) {
+  async tencent(@Query('domain') domain: string) {
     try {
       const result = await this.domainService.tencent(domain)
       return {
         data: result,
       }
     } catch (e) {
+      console.error('tencent api error', e);
       throw new BadRequestException()
     }
   }
