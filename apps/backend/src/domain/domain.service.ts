@@ -3,6 +3,7 @@ import { PlaywrightCrawler, ProxyConfiguration, RequestQueue } from "@crawlee/pl
 import {AliyunResponse, DomainInfo, NameSiloResponse} from "./domain.type";
 import sleep from "sleep-promise";
 import {v4 as uuid} from 'uuid'
+import { doCrawler } from "./crawler";
 
 @Injectable()
 export class DomainService {
@@ -10,56 +11,63 @@ export class DomainService {
   constructor() {
   }
   async godaddy(domain: string): Promise<DomainInfo> {
-    const requestQueue = await RequestQueue.open(uuid())
-    await requestQueue.addRequest({ url: 'https://godaddy.com' })
-    return new Promise(async (resolve, reject) => {
-      const crawler = new PlaywrightCrawler({
-        requestQueue,
-        requestHandlerTimeoutSecs: 60 * 60,
-        maxRequestRetries: 10,
-        requestHandler: async ({ page }) => {
-          await page.locator('.ux-search')
-            .getByPlaceholder('Type the domain you want')
-            .fill(domain)
-          await page.getByTestId('domain-search-box-button')
-            .click()
+    return doCrawler({
+      url: 'https://www.godaddy.com/domainsearch/find',
+      crawle: async (page) => {
+        await page.locator('[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.click"]')
+          .click({
+            delay: 1000
+          })
+        const l = page.locator('.tray-content')
+          .locator('a[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.en_us.click"]')
 
-          await page.locator('.favorites-div')
-            .click()
+          await l.click()
+        await page.locator("#domain-search-box")
+          .fill(domain)
+        await page.locator("#domain-search-box")
+          .focus()
+        await page.keyboard.press('Enter')
 
-          const domainTakenLocator = page.getByText('Domain Taken')
-          if (await domainTakenLocator.isVisible()) {
-            resolve({
-              domain,
-              price: '',
-              realPrice: '',
-              available: false
-            })
+        await page.waitForTimeout(10000)
+        await page.screenshot({
+          path: 'test.png'
+        })
+        await page.waitForSelector('.favorites-div', {state: "visible"})
+        const domainTakenLocator = page
+          .locator('[data-cy="dbsV2-badge"]', {
+            hasText: 'Domain Taken'
+          })
+        if (await domainTakenLocator.isVisible()) {
+          return {
+            domain,
+            price: '',
+            realPrice: '',
+            available: false
+          }
+        } else {
+          const mainPriceLocator = page
+            .locator('[data-cy="availableCard"]')
+            .getByTestId("pricing-main-price")
+          const mainPrice = (await mainPriceLocator.innerText()) as string;
+          const oldPriceLocator = page
+            .locator('[data-cy="availableCard"]')
+            .getByTestId('pricing-strikethrough-price')
+          const oldPrice = (await oldPriceLocator.innerText()) as string
+
+          if (!mainPrice || !oldPrice) {
+            this.logger.error('godaddy search domain info error')
+            throw new Error('godaddy search domain info error')
           } else {
-            const mainPrice = (await page.getByTestId('pricing-main-price').innerText()) as string
-            const oldPrice = (await page.getByTestId('pricing-strikethrough-price').innerText()) as string
-
-            if (!mainPrice || !oldPrice) {
-              this.logger.error('godaddy search domain info error')
-              reject(new Error())
-            } else {
-              resolve({
-                domain,
-                price: oldPrice,
-                realPrice: mainPrice,
-                available: true,
-                buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
-              })
+            return {
+              domain,
+              price: oldPrice,
+              realPrice: mainPrice,
+              available: true,
+              buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
             }
           }
-
-        },
-        proxyConfiguration: new ProxyConfiguration({
-          proxyUrls: ['http:127.0.0.1:7890']
-        })
-      })
-
-      await crawler.run()
+        }
+      }
     })
   }
 
@@ -274,5 +282,60 @@ export class DomainService {
         realPrice: '¥0',
       }
     }
+  }
+
+  async domain(domain: string): Promise<DomainInfo> {
+    return doCrawler({
+      url: 'https://www.domain.com',
+      crawle: async (page) => {
+        await page.getByPlaceholder('Find and purchase a domain name')
+          .fill(domain)
+
+        const searchButton = page.locator('.body')
+          .locator('.domainSearch__form')
+          .locator('.domainSearch__submit')
+          .first()
+        await searchButton.click()
+
+        await page.waitForTimeout(5000)
+        await page.screenshot({path: 'test.png'})
+        await page.waitForSelector('.available-list-wrapper', {state: "attached"})
+
+        const notAvailableLocator = page.locator('.not-available')
+        if (await notAvailableLocator.isVisible()) {
+          return {
+            domain,
+            price: '',
+            realPrice: '',
+            available: false
+          }
+        } else {
+          const price = await page.locator('.result.domain', {
+            hasText: domain
+          })
+            .locator('.total')
+            .innerText()
+
+          const months = await page.locator('.result.domain', {
+            hasText: domain
+          })
+            .locator('select')
+            .evaluate((select: HTMLSelectElement) => select.value)
+
+          if (!price) {
+            this.logger.error('godaddy search domain info error')
+            throw new Error('godaddy search domain info error')
+          } else {
+            return {
+              domain,
+              price: `${price}/${parseInt(months)/12} year`,
+              realPrice: `${price}/${parseInt(months)/12} year`,
+              available: true,
+              buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
+            }
+          }
+        }
+      }
+    })
   }
 }

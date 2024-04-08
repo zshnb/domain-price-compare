@@ -1,0 +1,5 @@
+{
+	"dependencies": {
+		"@crawlee/browser-pool": "^3.8.2"
+	}
+}

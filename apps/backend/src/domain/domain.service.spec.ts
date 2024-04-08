@@ -18,6 +18,7 @@ describe('DomainService', () => {
     it('success with available domain', async () => {
       const result = await domainService.godaddy('sleek123.com')
       expect(result.available).toBeTruthy()
+      console.log(result);
     }, 600000)
     it('success with unavailable domain', async () => {
       const result = await domainService.godaddy('sleek.com')
@@ -51,6 +52,16 @@ describe('DomainService', () => {
     }, 600000)
     it('success with unavailable domain', async () => {
       const result = await domainService.aliyun('sleek.com')
+      expect(result.available).toBeFalsy()
+    }, 600000)
+  });
+  describe("domain api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.domain('sleek123.com')
+      expect(result.available).toBeTruthy()
+    }, 600000)
+    it('success with unavailable domain', async () => {
+      const result = await domainService.domain('sleek.com')
       expect(result.available).toBeFalsy()
     }, 600000)
   });
