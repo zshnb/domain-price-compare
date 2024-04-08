@@ -79,6 +79,7 @@ export class DomainService {
         requestQueue,
         requestHandlerTimeoutSecs: 60 * 60,
         maxRequestRetries: 10,
+        headless: false,
         requestHandler: async ({ page }) => {
           await page.locator('#static-domain-search-domain-search-input')
             .fill(domain)

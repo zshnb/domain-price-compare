@@ -1,84 +1,103 @@
-"use client"
+"use client";
 
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
+  useReactTable
+} from "@tanstack/react-table";
 
 import {
   Table,
   TableBody,
-  TableCell,
+  TableCell, TableFooter,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {DomainInfo, DomainRegister} from "@/components/domainTable/domainTable.type";
-import {Button, buttonVariants} from "@/components/ui/button";
-import {Check, ChevronRight, MousePointer2, X} from "lucide-react";
+  TableRow
+} from "@/components/ui/table";
+import { DomainInfo, DomainRegister } from "@/components/domainTable/domainTable.type";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Check, ChevronRight, MousePointer2, X } from "lucide-react";
 import Link from "next/link";
+import Spinner from "@/components/spinner/spinner";
 
 const columns: ColumnDef<DomainInfo>[] = [
   {
     accessorKey: "register",
     header: "注册商",
-    cell: ({row}) => {
-      const register = row.getValue<string>('register')
-      return <p>{register}</p>
+    cell: ({ row }) => {
+      const register = row.getValue<string>("register");
+      return <p>{register}</p>;
     }
   },
   {
     accessorKey: "domain",
-    header: "域名",
+    header: "域名"
   },
   {
-    accessorKey: 'price',
-    header: '价格'
-  },
-  {
-    accessorKey: 'realPrice',
-    header: '现价'
-  },
-  {
-    accessorKey: 'available',
-    header: '状态',
-    cell: ({row}) => {
-      return row.getValue<boolean>('available') ? (
-        <Check color='#00bd03'/>
+    accessorKey: "price",
+    header: "价格",
+    cell: ({ row }) => {
+      const price = row.getValue<string>("price");
+      return row.getValue<boolean>("available") ? (
+        <p>{price}</p>
       ) : (
-        <X color='#bd0000'/>
-      )
+        <p>/</p>
+      );
+    }
+  },
+  {
+    accessorKey: "realPrice",
+    header: "现价",
+    cell: ({ row }) => {
+      const price = row.getValue<string>("price");
+      return row.getValue<boolean>("available") ? (
+        <p>{price}</p>
+      ) : (
+        <p>/</p>
+      );
+    }
+  },
+  {
+    accessorKey: "available",
+    header: "状态",
+    cell: ({ row }) => {
+      return row.getValue<boolean>("available") ? (
+        <Check color="#00bd03" />
+      ) : (
+        <X color="#bd0000" />
+      );
     }
   },
   {
     accessorKey: "buyLink",
-    header: '购买链接',
-    cell: ({row}) => {
-      const link = row.getValue<string | undefined>('buyLink')
-      if (link !== '' && link !== undefined) {
+    header: "购买链接",
+    cell: ({ row }) => {
+      const available = row.getValue<boolean>("available");
+      if (available) {
+        const link = row.getValue<string>("buyLink");
         return (
-          <Link className={buttonVariants({ variant: "outline" })} href={link} target='_blank'>
+          <Link className={buttonVariants({ variant: "outline" })} href={link} target="_blank">
             <MousePointer2 className="h-4 w-4" />
           </Link>
-        )
+        );
       } else {
-        return <></>
+        return <></>;
       }
     }
   }
-]
+];
 
 export type DomainTableProps = {
   data: DomainInfo[]
+  loading: boolean
 }
-export default function DomainTable({data}: DomainTableProps) {
+export default function DomainTable({ data, loading }: DomainTableProps) {
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-  })
+    getCoreRowModel: getCoreRowModel()
+  });
 
   return (
     <div className="rounded-md border w-full">
@@ -96,7 +115,7 @@ export default function DomainTable({data}: DomainTableProps) {
                         header.getContext()
                       )}
                   </TableHead>
-                )
+                );
               })}
             </TableRow>
           ))}
@@ -123,7 +142,18 @@ export default function DomainTable({data}: DomainTableProps) {
             </TableRow>
           )}
         </TableBody>
+        {
+          loading && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={columns.length} align='center'>
+                  <Spinner/>
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          )
+        }
       </Table>
     </div>
-  )
+  );
 }

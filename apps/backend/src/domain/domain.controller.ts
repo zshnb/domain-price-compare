@@ -65,4 +65,17 @@ export class DomainController {
       throw new BadRequestException()
     }
   }
+
+  @Get('domain')
+  async domain(@Query('domain') domain: string) {
+    try {
+      const result = await this.domainService.domain(domain)
+      return {
+        data: result,
+      }
+    } catch (e) {
+      console.error('domain api error', e);
+      throw new BadRequestException()
+    }
+  }
 }

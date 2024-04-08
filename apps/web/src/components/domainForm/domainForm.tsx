@@ -21,9 +21,11 @@ const formSchema = z.object({
 })
 
 export type DomainFormProps = {
+  onStart: () => void
   onFetchDomainInfo: (domainInfo: DomainInfo) => void,
+  onFinish: () => void
 }
-export default function DomainForm({onFetchDomainInfo}: DomainFormProps) {
+export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: DomainFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,14 +33,21 @@ export default function DomainForm({onFetchDomainInfo}: DomainFormProps) {
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    onStart()
     const registers = Object.keys(DomainRegister)
-    Promise.all(registers.map(it => {
-      fetch(`/api/${it}?domain=${values.domain}`).then(async res => {
-        const json = await res.json()
-        onFetchDomainInfo(json.data)
-      }).catch(error => {})
+    await Promise.all(registers.map(async it => {
+      try {
+        const res = await fetch(`/api/${it}?domain=${values.domain}`);
+        if (res.ok) {
+          const json = await res.json();
+          onFetchDomainInfo(json.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }))
+    onFinish()
   }
 
   return (

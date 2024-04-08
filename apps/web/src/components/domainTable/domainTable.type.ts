@@ -1,8 +1,8 @@
 export type DomainInfo = {
   register: string
   domain: string
-  price: number
-  realPrice: number
+  price: string
+  realPrice: string
   available: boolean
   buyLink?: string
 }
@@ -13,4 +13,5 @@ export const DomainRegister = {
   godaddy: 'GoDaddy',
   namesilo: 'NameSilo',
   namecheap: 'NameCheap',
+  domain: 'Domain',
 }
