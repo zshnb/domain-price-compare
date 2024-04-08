@@ -10,14 +10,14 @@
 /coverage
 
 # next.js
-/.next/
+**/.next/
 /out/
 
 # production
 /build
 
 # misc
-.DS_Store
+**/.DS_Store
 *.pem
 
 # debug
@@ -26,14 +26,14 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+**/.env*.local
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+**/next-env.d.ts
 **/.idea/
 **/storage/
 **/dist/

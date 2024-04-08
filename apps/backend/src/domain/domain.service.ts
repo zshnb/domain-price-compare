@@ -2,7 +2,6 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PlaywrightCrawler, ProxyConfiguration, RequestQueue } from "@crawlee/playwright";
 import {AliyunResponse, DomainInfo, NameSiloResponse} from "./domain.type";
 import sleep from "sleep-promise";
-import {DomainRegister} from "../../../src/components/domainTable/domainTable.type";
 
 @Injectable()
 export class DomainService {
@@ -250,7 +249,6 @@ export class DomainService {
       price: result.Price,
       realPrice: result.RealPrice,
       buyLink: `https://buy.cloud.tencent.com/domain/?domain=${result.DomainName}`,
-      register: DomainRegister.tencent
     }
   }
 }
