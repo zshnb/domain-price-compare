@@ -44,4 +44,14 @@ describe('DomainService', () => {
       expect(result.available).toBeFalsy()
     }, 600000)
   });
+  describe("aliyun api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.aliyun('sleek123.com')
+      expect(result.available).toBeTruthy()
+    }, 600000)
+    it('success with unavailable domain', async () => {
+      const result = await domainService.aliyun('sleek.com')
+      expect(result.available).toBeFalsy()
+    }, 600000)
+  });
 });

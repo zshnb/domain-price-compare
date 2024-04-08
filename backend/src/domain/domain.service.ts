@@ -1,7 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PlaywrightCrawler, ProxyConfiguration, RequestQueue } from "@crawlee/playwright";
-import { DomainInfo, NameSiloResponse } from "./domain.type";
+import {AliyunResponse, DomainInfo, NameSiloResponse} from "./domain.type";
 import sleep from "sleep-promise";
+import {DomainRegister} from "../../../src/components/domainTable/domainTable.type";
 
 @Injectable()
 export class DomainService {
@@ -153,6 +154,103 @@ export class DomainService {
       price: `$${domainInfo.currentPrice}`,
       realPrice: `$${domainInfo.currentPrice}`,
       domain
+    }
+  }
+
+  async aliyun(domain: string): Promise<DomainInfo> {
+    async function getToken(now: number) {
+      const response = await fetch(`https://promotion.aliyun.com/risk/getToken.htm?cback=jsonp_${now}_36781`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+          'content-type': 'application/json'
+        }
+      })
+      if (!response.ok) {
+        console.error(`get aliyun token error: ${await response.text()}`)
+        return ''
+      }
+      const text = await response.text()
+      const pattern = `(?<=jsonp_${now}_36781\\()(.|\\n)*(?=\\);)`
+      const re = new RegExp(pattern, 'gm')
+      const jsonStr = re.exec(text)?.at(0) as any
+      const json = JSON.parse(`${jsonStr}`)
+      return json.data
+    }
+
+    async function getProductId(domain: string, now: number, token: string) {
+      const response = await fetch(`https://checkapi.aliyun.com/check/search?domainName=${domain}&umidToken=${token}&callback=__jp0&_=${now}`, {
+        method: 'get',
+        headers: {
+          'Content-Type': 'application/javascript',
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        },
+      })
+      if (!response.ok) {
+        console.error(`get aliyun productId error: ${await response.text()}`)
+        return ''
+      }
+      const pattern = `(?<=(__jp0\\())(.|\\n)*(?=\\);)`
+      const re = new RegExp(pattern, 'gm')
+      const text = await response.text()
+      const jsonStr = re.exec(text)?.at(0) as string
+      const universalList = (jsonStr.match(/"universalList":\[.*]/g)?.at(0) as any).replace('"universalList":', '')
+      const firstObject = universalList.match(/\{.*?}/).at(0)
+      return firstObject.match(/(?<="produceId":)".*"/).at(0)
+    }
+
+    const now = Date.now();
+    const token = await getToken(now)
+    const productId = await getProductId(domain, now, token)
+    await sleep(1000)
+    const token2 = await getToken(now)
+    const response = await fetch(`https://checkapi.aliyun.com/check/domaincheck?domain=${domain}&productID=${productId}&token=${token2}&callback=__jp1&_=${now}`, {
+      method: 'get',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      },
+    })
+    if (!response.ok) {
+      throw new Error('get aliyun domain info error')
+    }
+    const text = await response.text();
+    const pattern = `(?<=__jp1\\()(.|\\n)*(?=\\);)`
+    const re = new RegExp(pattern, 'gm')
+    const jsonStr = re.exec(text)?.at(0)
+    const json = JSON.parse(`${jsonStr}`) as AliyunResponse
+    const array = domain.split('.')
+    return {
+      available: json.module.domainDetail.avail === 1,
+      price: `¥${json.module?.priceList?.at(0)?.money || 0}`,
+      realPrice: `$${json.module?.priceList?.at(0)?.money || 0}`,
+      domain,
+      buyLink: `https://wanwang.aliyun.com/domain/searchresult/#/?keyword=${array[0]}&suffix=${array[1]}&=`,
+    }
+  }
+
+  async tencent(domain: string) {
+    const now = Date.now();
+    const response = await fetch(`https://qcwss.cloud.tencent.com/capi/ajax-v3?action=BatchCheckDomain&from=domain_buy&csrfCode=&uin=0&_=${now}&mc_gtk=&t=${now}&g_tk=&_format=json`, {
+      method: 'post',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        DomainList: [domain],
+        Filter: 0,
+        Period: 1,
+        HashId: now.toString(),
+        SaveDomainSearch: false
+      })
+    })
+    const result = await response.json();
+    return {
+      domain: result.DomainName,
+      available: result.Available,
+      price: result.Price,
+      realPrice: result.RealPrice,
+      buyLink: `https://buy.cloud.tencent.com/domain/?domain=${result.DomainName}`,
+      register: DomainRegister.tencent
     }
   }
 }
