@@ -1,14 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { DomainService } from "./domain.service";
 import { DomainController } from "./domain.controller";
+import { Crawler } from "./crawler";
+import { ConfigModule } from "@nestjs/config";
 
 describe('DomainService', () => {
   let domainService: DomainService
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forFeature(async () => ({
+          PROXY_URL: 'http://127.0.0.1:7890'
+        }))
+      ],
       controllers: [DomainController],
-      providers: [DomainService],
+      providers: [DomainService, Crawler],
     }).compile();
 
     domainService = app.get<DomainService>(DomainService);

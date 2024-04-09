@@ -1,19 +1,17 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { PlaywrightCrawler, ProxyConfiguration, RequestQueue } from "@crawlee/playwright";
 import {AliyunResponse, DomainInfo, NameSiloResponse} from "./domain.type";
 import sleep from "sleep-promise";
-import {v4 as uuid} from 'uuid'
-import { doCrawler } from "./crawler";
+import { Crawler } from "./crawler";
 
 @Injectable()
 export class DomainService {
   private logger: Logger = new Logger(DomainService.name)
-  constructor() {
+  constructor(private readonly crawler: Crawler) {
   }
   async godaddy(domain: string): Promise<DomainInfo> {
-    return doCrawler({
+    return this.crawler.doCrawler({
       url: 'https://www.godaddy.com/domainsearch/find',
-      crawle: async (page) => {
+      processPage: async (page) => {
         await page.locator('[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.click"]')
           .click({
             delay: 1000
@@ -72,58 +70,45 @@ export class DomainService {
   }
 
   async namecheap(domain: string): Promise<DomainInfo> {
-    const requestQueue = await RequestQueue.open(uuid())
-    await requestQueue.addRequest({ url: 'https://www.namecheap.com' })
-    return new Promise(async (resolve, reject) => {
-      const crawler = new PlaywrightCrawler({
-        requestQueue,
-        requestHandlerTimeoutSecs: 60 * 60,
-        maxRequestRetries: 10,
-        headless: false,
-        requestHandler: async ({ page }) => {
-          await page.locator('#static-domain-search-domain-search-input')
-            .fill(domain)
-          await page.locator('#static-domain-search')
-            .locator('[aria-label="Search"]')
-            .click()
+    return this.crawler.doCrawler({
+      url: 'https://www.namecheap.com',
+      processPage: async (page) => {
+        await page.locator('#static-domain-search-domain-search-input')
+          .fill(domain)
+        await page.locator('#static-domain-search')
+          .locator('[aria-label="Search"]')
+          .click()
 
-          await page.locator('section.standard', {
-            has: page.locator('article.available,article.unavailable')
-          })
-            .waitFor({
-              state: 'visible'
-            })
-
-          const locator = page.locator('section.standard > article.available')
-          if (await locator.isVisible()) {
-            const price = await locator.locator('div.price > strong')
-              .innerText()
-            if (!price) {
-              reject(new Error('namecheap search domain info error'))
-            }
-            resolve({
-              available: true,
-              price,
-              realPrice: price,
-              domain,
-              buyLink: `https://www.namecheap.com/domains/registration/results/?domain=${domain}`
-            })
-          } else {
-            resolve({
-              domain,
-              price: '',
-              realPrice: '',
-              available: false
-            })
-          }
-
-        },
-        proxyConfiguration: new ProxyConfiguration({
-          proxyUrls: ['http:127.0.0.1:7890']
+        await page.locator('section.standard', {
+          has: page.locator('article.available,article.unavailable')
         })
-      })
+          .waitFor({
+            state: 'visible'
+          })
 
-      await crawler.run()
+        const locator = page.locator('section.standard > article.available')
+        if (await locator.isVisible()) {
+          const price = await locator.locator('div.price > strong')
+            .innerText()
+          if (!price) {
+            throw new Error('namecheap search domain info error')
+          }
+          return {
+            available: true,
+            price,
+            realPrice: price,
+            domain,
+            buyLink: `https://www.namecheap.com/domains/registration/results/?domain=${domain}`
+          }
+        } else {
+          return {
+            domain,
+            price: '',
+            realPrice: '',
+            available: false
+          }
+        }
+      }
     })
   }
 
@@ -286,9 +271,9 @@ export class DomainService {
   }
 
   async domain(domain: string): Promise<DomainInfo> {
-    return doCrawler({
+    return this.crawler.doCrawler({
       url: 'https://www.domain.com',
-      crawle: async (page) => {
+      processPage: async (page) => {
         await page.getByPlaceholder('Find and purchase a domain name')
           .fill(domain)
 
