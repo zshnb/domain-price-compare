@@ -18,6 +18,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@crawlee/browser-pool": "^3.8.2",
     "@crawlee/playwright": "^3.8.2",
     "@nestjs/common": "^10.3.7",
     "@nestjs/config": "^3.2.2",

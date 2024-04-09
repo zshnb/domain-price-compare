@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@crawlee/browser-pool':
+    specifier: ^3.8.2
+    version: 3.8.2(playwright@1.43.0)
   '@crawlee/playwright':
     specifier: ^3.8.2
     version: 3.8.2(playwright@1.43.0)
