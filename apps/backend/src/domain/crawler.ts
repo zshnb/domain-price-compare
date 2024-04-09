@@ -33,9 +33,9 @@ export class Crawler {
             reject(error);
           }
         },
-        proxyConfiguration: new ProxyConfiguration({
+        proxyConfiguration: process.env.NODE_ENV === 'development' ? new ProxyConfiguration({
           proxyUrls: [this.configService.get('PROXY_URL')]
-        }),
+        }) : undefined,
         browserPoolOptions: {
           fingerprintOptions: {
             fingerprintGeneratorOptions: {
