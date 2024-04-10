@@ -1,7 +1,9 @@
-import {BadRequestException, Controller, Get, Query} from "@nestjs/common";
+import { BadRequestException, Controller, Get, Query, UseGuards } from "@nestjs/common";
 import { DomainService } from './domain.service';
+import { ThrottlerGuard } from "@nestjs/throttler";
 
 @Controller('domain')
+@UseGuards(ThrottlerGuard)
 export class DomainController {
   constructor(private readonly domainService: DomainService) {}
 
