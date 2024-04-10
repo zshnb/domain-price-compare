@@ -48,9 +48,9 @@ const columns: ColumnDef<DomainInfo>[] = [
   },
   {
     accessorKey: "realPrice",
-    header: "现价",
+    header: "优惠价",
     cell: ({ row }) => {
-      const price = row.getValue<string>("price");
+      const price = row.getValue<string>("realPrice");
       return row.getValue<boolean>("available") ? (
         <p>{price}</p>
       ) : (
@@ -137,7 +137,7 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+                暂无结果
               </TableCell>
             </TableRow>
           )}

@@ -36,18 +36,28 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
   async function onSubmit(values: z.infer<typeof formSchema>) {
     onStart()
     const registers = Object.keys(DomainRegister)
-    await Promise.all(registers.map(async it => {
-      try {
-        const res = await fetch(`/api/${it}?domain=${values.domain}`);
-        if (res.ok) {
-          const json = await res.json();
-          onFetchDomainInfo(json.data);
-        }
-      } catch (error) {
-        console.error(error);
+    try {
+      const tencentResponse = await fetch(`/api/tencent?domain=${values.domain}`)
+      const json = await tencentResponse.json()
+      if (json.data.available) {
+        await Promise.all(registers.map(async it => {
+          try {
+            const res = await fetch(`/api/${it}?domain=${values.domain}`);
+            if (res.ok) {
+              const json = await res.json();
+              onFetchDomainInfo(json.data);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }))
+      } else {
+        onFetchDomainInfo(json.data)
       }
-    }))
-    onFinish()
+    } catch (e) {}
+    finally {
+      onFinish()
+    }
   }
 
   return (
@@ -65,7 +75,7 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
             </FormItem>
           )}
         />
-        <Button type="submit" className='!mt-0'>Submit</Button>
+        <Button type="submit" className='!mt-0'>搜索</Button>
       </form>
     </Form>
   )

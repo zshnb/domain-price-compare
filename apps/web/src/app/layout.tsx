@@ -12,7 +12,10 @@ const fontSans = FontSans({
 export default function RootLayout({ children }: {children: ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning>
-    <head />
+    <head>
+      <link rel="icon" href="/icon.png" sizes="any" />
+      <title>域名比价</title>
+    </head>
     <body
       className={cn(
         "min-h-screen bg-background font-sans antialiased",
