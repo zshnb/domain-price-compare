@@ -3,6 +3,8 @@ import { DomainService } from "./domain.service";
 import { DomainController } from "./domain.controller";
 import { Crawler } from "./crawler";
 import { ConfigModule } from "@nestjs/config";
+import {ThrottlerModule} from "@nestjs/throttler";
+import {describe, beforeEach, it, expect} from 'vitest'
 
 describe('DomainService', () => {
   let domainService: DomainService
@@ -12,7 +14,11 @@ describe('DomainService', () => {
       imports: [
         ConfigModule.forFeature(async () => ({
           PROXY_URL: 'http://127.0.0.1:7890'
-        }))
+        })),
+        ThrottlerModule.forRoot([{
+          ttl: 60000,
+          limit: 30,
+        }]),
       ],
       controllers: [DomainController],
       providers: [DomainService, Crawler],

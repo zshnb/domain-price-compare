@@ -10,7 +10,7 @@ export class DomainService {
   }
   async godaddy(domain: string): Promise<DomainInfo> {
     return this.crawler.doCrawler({
-      url: 'https://www.godaddy.com/domainsearch/find',
+      url: 'https://www.godaddy.com/domainsearch/find?domainToCheck=sleek123.com',
       processPage: async (page) => {
         await page.locator('[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.click"]')
           .click({
@@ -26,10 +26,6 @@ export class DomainService {
           .focus()
         await page.keyboard.press('Enter')
 
-        await page.waitForTimeout(10000)
-        await page.screenshot({
-          path: 'test.png'
-        })
         await page.waitForSelector('.favorites-div', {state: "visible"})
         const domainTakenLocator = page
           .locator('[data-cy="dbsV2-badge"]', {
