@@ -26,6 +26,11 @@ export type DomainFormProps = {
   onFinish: () => void
 }
 export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: DomainFormProps) {
+  const formSchema = z.object({
+    domain: z.string()
+      .regex(new RegExp('[a-zA-Z0-9]+\\.([a-z]+)'), '域名不合法')
+  })
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
