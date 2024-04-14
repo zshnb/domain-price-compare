@@ -80,4 +80,17 @@ export class DomainController {
       throw new BadRequestException()
     }
   }
+
+  @Get('dynadot')
+  async dynadot(@Query('domain') domain: string) {
+    try {
+      const result = await this.domainService.dynadot(domain)
+      return {
+        data: result,
+      }
+    } catch (e) {
+      console.error('domain api error', e);
+      throw new BadRequestException()
+    }
+  }
 }

@@ -12,10 +12,12 @@ export class Crawler {
   }
   async doCrawler({
     url,
-    processPage
+    processPage,
+    headless = false
   }: {
     url: string
     processPage: (page: Page) => Promise<DomainInfo>
+    headless: boolean
   }): Promise<DomainInfo> {
     const requestQueue = await RequestQueue.open(uuid());
     await requestQueue.addRequest({ url });
@@ -24,7 +26,7 @@ export class Crawler {
         requestQueue,
         requestHandlerTimeoutSecs: 60,
         maxRequestRetries: 3,
-        headless: false,
+        headless,
         requestHandler: async ({ page }) => {
           try {
             const result = await processPage(page);

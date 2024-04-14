@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import {AliyunResponse, DomainInfo, NameSiloResponse} from "./domain.type";
 import sleep from "sleep-promise";
 import { Crawler } from "./crawler";
+import parse from "node-html-parser";
 
 @Injectable()
 export class DomainService {
@@ -11,6 +12,7 @@ export class DomainService {
   async godaddy(domain: string): Promise<DomainInfo> {
     return this.crawler.doCrawler({
       url: 'https://www.godaddy.com/domainsearch/find?domainToCheck=sleek123.com',
+      headless: false,
       processPage: async (page) => {
         await page.locator('[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.click"]')
           .click({
@@ -68,6 +70,7 @@ export class DomainService {
   async namecheap(domain: string): Promise<DomainInfo> {
     return this.crawler.doCrawler({
       url: 'https://www.namecheap.com',
+      headless: false,
       processPage: async (page) => {
         await page.locator('#static-domain-search-domain-search-input')
           .fill(domain)
@@ -198,15 +201,14 @@ export class DomainService {
       const jsonStr = re.exec(text)?.at(0) as string
       const universalList = (jsonStr.match(/"universalList":\[.*]/g)?.at(0) as any).replace('"universalList":', '')
       const firstObject = universalList.match(/\{.*?}/).at(0)
-      return firstObject.match(/(?<="produceId":)".*"/).at(0)
+      return firstObject.match(/(?<="produceId":)".*"/)[0]
     }
 
     const now = Date.now();
     const token = await getToken(now)
     const productId = await getProductId(domain, now, token)
-    await sleep(1000)
-    const token2 = await getToken(now)
-    const response = await fetch(`https://checkapi.aliyun.com/check/domaincheck?domain=${domain}&productID=${productId}&token=${token2}&callback=__jp1&_=${now}`, {
+
+    const response = await fetch(`https://checkapi.aliyun.com/check/domaincheck?domain=${domain}&productID=${productId}&token=${token}&callback=__jp1&_=${now}`.replaceAll('"', ''), {
       method: 'get',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
@@ -269,6 +271,7 @@ export class DomainService {
   async domain(domain: string): Promise<DomainInfo> {
     return this.crawler.doCrawler({
       url: 'https://www.domain.com',
+      headless: false,
       processPage: async (page) => {
         await page.getByPlaceholder('Find and purchase a domain name')
           .fill(domain)
@@ -280,7 +283,6 @@ export class DomainService {
         await searchButton.click()
 
         await page.waitForTimeout(5000)
-        await page.screenshot({path: 'test.png'})
         await page.waitForSelector('.available-list-wrapper', {state: "attached"})
 
         const notAvailableLocator = page.locator('.not-available')
@@ -319,5 +321,40 @@ export class DomainService {
         }
       }
     })
+  }
+  async dynadot(domain: string): Promise<DomainInfo> {
+    const urlencoded = new URLSearchParams();
+    urlencoded.append("domain", `${domain}`);
+    urlencoded.append("cmd", "search_domain_ajax");
+    urlencoded.append("displaySuggestions", "1");
+    const response = await fetch('https://www.dynadot.com/domain/search', {
+      method: 'post',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'x-requested-with': 'XMLHttpRequest'
+      },
+      body: urlencoded
+    })
+    const json = await response.json();
+    const dom = parse(json.content)
+    const element = dom.querySelector('div.exact-valid-row > div > div > div.middle-group > div.search-price-group > div.search-price')
+    if (element) {
+      const price = element.innerText
+      return {
+        domain,
+        price,
+        realPrice: price,
+        available: true,
+        buyLink: `https://www.dynadot.com/domain/search`
+      }
+    } else {
+      return {
+        domain,
+        price: '',
+        realPrice: '',
+        available: false
+      }
+    }
   }
 }
