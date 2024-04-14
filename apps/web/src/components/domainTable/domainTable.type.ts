@@ -10,7 +10,7 @@ export type DomainInfo = {
 export const DomainRegister = {
   tencent: '腾讯云',
   aliyun: '阿里云',
-  godaddy: 'GoDaddy',
+  dynadot: 'dynadot',
   namesilo: 'NameSilo',
   namecheap: 'NameCheap',
   domain: 'Domain',

@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import {Button} from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -8,10 +8,10 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
+import {Input} from "@/components/ui/input"
+import {zodResolver} from "@hookform/resolvers/zod"
+import {useForm} from "react-hook-form"
+import {z} from "zod"
 import {DomainInfo, DomainRegister} from "@/components/domainTable/domainTable.type";
 
 const formSchema = z.object({
@@ -39,8 +39,9 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
     try {
       const tencentResponse = await fetch(`/api/tencent?domain=${values.domain}`)
       const json = await tencentResponse.json()
+      onFetchDomainInfo(json.data)
       if (json.data.available) {
-        await Promise.all(registers.map(async it => {
+        await Promise.all([...registers.filter(it => it !== 'tencent').map(async it => {
           try {
             const res = await fetch(`/api/${it}?domain=${values.domain}`);
             if (res.ok) {
@@ -50,12 +51,10 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
           } catch (error) {
             console.error(error);
           }
-        }))
-      } else {
-        onFetchDomainInfo(json.data)
+        })])
       }
-    } catch (e) {}
-    finally {
+    } catch (e) {
+    } finally {
       onFinish()
     }
   }
@@ -66,12 +65,12 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
         <FormField
           control={form.control}
           name="domain"
-          render={({ field }) => (
+          render={({field}) => (
             <FormItem className='basis-1/3'>
               <FormControl>
                 <Input placeholder="请输入域名" {...field} />
               </FormControl>
-              <FormMessage />
+              <FormMessage/>
             </FormItem>
           )}
         />
