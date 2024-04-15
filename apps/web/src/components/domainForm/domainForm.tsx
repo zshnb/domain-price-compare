@@ -13,12 +13,8 @@ import {zodResolver} from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form"
 import {z} from "zod"
 import {DomainInfo, DomainRegister} from "@/components/domainTable/domainTable.type";
-
-const formSchema = z.object({
-  domain: z.string().min(1, {
-    message: 'domain must have at least 1 character',
-  }),
-})
+import {useTranslation} from "@/app/i18n/client";
+import {useLocaleContext} from "@/context/LocaleContext";
 
 export type DomainFormProps = {
   onStart: () => void
@@ -26,16 +22,18 @@ export type DomainFormProps = {
   onFinish: () => void
 }
 export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: DomainFormProps) {
+  const lang = useLocaleContext().lang
+  const {t} = useTranslation(lang)
   const formSchema = z.object({
     domain: z.string()
-      .regex(new RegExp('[a-zA-Z0-9]+\\.([a-z]+)'), '域名不合法')
+      .regex(new RegExp('[a-zA-Z0-9]+\\.([a-z]+)'), t('index.domainForm.invalidDomainMessage'))
   })
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       domain: "",
     },
+    mode: 'onChange'
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -73,13 +71,13 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
           render={({field}) => (
             <FormItem className='basis-1/3'>
               <FormControl>
-                <Input placeholder="请输入域名" {...field} />
+                <Input placeholder={t('index.domainForm.domainInputPlaceholder')} {...field} />
               </FormControl>
               <FormMessage/>
             </FormItem>
           )}
         />
-        <Button type="submit" className='!mt-0'>搜索</Button>
+        <Button type="submit" className='!mt-0'>{t('index.domainForm.submitButton')}</Button>
       </form>
     </Form>
   )

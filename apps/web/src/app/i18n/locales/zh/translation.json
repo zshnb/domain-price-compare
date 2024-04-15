@@ -1,0 +1,21 @@
+{
+  "index": {
+    "headerLogo": "域名比价",
+    "domainForm": {
+      "invalidDomainMessage": "域名不合法",
+      "domainInputPlaceholder": "请输入域名",
+      "submitButton": "搜索"
+    },
+    "domainTable": {
+      "emptyMessage": "暂无结果",
+      "header": {
+        "register": "注册商",
+        "domain": "域名",
+        "price": "价格",
+        "realPrice": "优惠价",
+        "status": "状态",
+        "buyLink": "购买链接"
+      }
+    }
+  }
+}

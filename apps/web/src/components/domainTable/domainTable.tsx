@@ -15,84 +15,22 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { DomainInfo, DomainRegister } from "@/components/domainTable/domainTable.type";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Check, ChevronRight, MousePointer2, X } from "lucide-react";
-import Link from "next/link";
+import { DomainInfo } from "@/components/domainTable/domainTable.type";
 import Spinner from "@/components/spinner/spinner";
+import {useTranslation} from "@/app/i18n/client";
+import {useLocaleContext} from "@/context/LocaleContext";
+import useDomainTable from "@/hooks/useDomainTable";
 
-const columns: ColumnDef<DomainInfo>[] = [
-  {
-    accessorKey: "register",
-    header: "注册商",
-    cell: ({ row }) => {
-      const register = row.getValue<string>("register");
-      return <p>{register}</p>;
-    }
-  },
-  {
-    accessorKey: "domain",
-    header: "域名"
-  },
-  {
-    accessorKey: "price",
-    header: "价格",
-    cell: ({ row }) => {
-      const price = row.getValue<string>("price");
-      return row.getValue<boolean>("available") ? (
-        <p>{price}</p>
-      ) : (
-        <p>/</p>
-      );
-    }
-  },
-  {
-    accessorKey: "realPrice",
-    header: "优惠价",
-    cell: ({ row }) => {
-      const price = row.getValue<string>("realPrice");
-      return row.getValue<boolean>("available") ? (
-        <p>{price}</p>
-      ) : (
-        <p>/</p>
-      );
-    }
-  },
-  {
-    accessorKey: "available",
-    header: "状态",
-    cell: ({ row }) => {
-      return row.getValue<boolean>("available") ? (
-        <Check color="#00bd03" />
-      ) : (
-        <X color="#bd0000" />
-      );
-    }
-  },
-  {
-    accessorKey: "buyLink",
-    header: "购买链接",
-    cell: ({ row }) => {
-      const available = row.getValue<boolean>("available");
-      if (available) {
-        const link = row.getValue<string>("buyLink");
-        return (
-          <Link className={buttonVariants({ variant: "outline" })} href={link} target="_blank">
-            <MousePointer2 className="h-4 w-4" />
-          </Link>
-        );
-      } else {
-        return <></>;
-      }
-    }
-  }
-];
+
 
 export type DomainTableProps = {
   data: DomainInfo[]
   loading: boolean
 }
 export default function DomainTable({ data, loading }: DomainTableProps) {
+  const lang = useLocaleContext().lang
+  const {t} = useTranslation(lang)
+  const {columns} = useDomainTable()
   const table = useReactTable({
     data,
     columns,
@@ -137,7 +75,7 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                暂无结果
+                {t('index.domainTable.emptyMessage')}
               </TableCell>
             </TableRow>
           )}

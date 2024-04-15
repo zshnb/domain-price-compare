@@ -1,0 +1,21 @@
+{
+  "index": {
+    "headerLogo": "Domain Price Compare",
+    "domainForm": {
+      "invalidDomainMessage": "Invalid domain",
+      "domainInputPlaceholder": "Please type domain",
+      "submitButton": "Search"
+    },
+    "domainTable": {
+      "emptyMessage": "No result",
+      "header": {
+        "register": "Register",
+        "domain": "Domain",
+        "price": "Price",
+        "realPrice": "Discount price",
+        "status": "Status",
+        "buyLink": "Buy link"
+      }
+    }
+  }
+}
