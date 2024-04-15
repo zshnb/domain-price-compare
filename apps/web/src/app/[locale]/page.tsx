@@ -1,16 +1,18 @@
 "use client";
 import DomainForm from "@/components/domainForm/domainForm";
 import DomainTable from "@/components/domainTable/domainTable";
-import { DomainInfo } from "@/components/domainTable/domainTable.type";
-import { useState } from "react";
+import {DomainInfo} from "@/components/domainTable/domainTable.type";
+import {useState} from "react";
 import {useTranslation} from "@/app/i18n/client";
 import {LocaleContext} from "@/context/LocaleContext";
 
-export default function Home({locale}: {locale: string}) {
+export default function Home({params}: {
+  params: { locale: string }
+}) {
   const localeContext = {
-    lang: locale
+    lang: params.locale
   }
-  const {t} = useTranslation(locale)
+  const {t} = useTranslation(params.locale)
   const [domains, setDomains] = useState<DomainInfo[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   return (
@@ -33,7 +35,7 @@ export default function Home({locale}: {locale: string}) {
             setLoading(false)
           }}
         />
-        <DomainTable data={domains} loading={loading} />
+        <DomainTable data={domains} loading={loading}/>
       </main>
     </LocaleContext.Provider>
   );
