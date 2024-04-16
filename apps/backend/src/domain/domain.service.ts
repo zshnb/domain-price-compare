@@ -1,8 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
-import {AliyunResponse, DomainInfo, NameSiloResponse} from "./domain.type";
+import {AliyunResponse, DomainInfo, DomainResponse, NameSiloResponse} from "./domain.type";
 import sleep from "sleep-promise";
 import { Crawler } from "./crawler";
 import parse from "node-html-parser";
+import {Page} from "playwright";
 
 @Injectable()
 export class DomainService {
@@ -282,43 +283,7 @@ export class DomainService {
           .first()
         await searchButton.click()
 
-        await page.waitForTimeout(5000)
-        await page.waitForSelector('.available-list-wrapper', {state: "attached"})
-
-        const notAvailableLocator = page.locator('.not-available')
-        if (await notAvailableLocator.isVisible()) {
-          return {
-            domain,
-            price: '',
-            realPrice: '',
-            available: false
-          }
-        } else {
-          const price = await page.locator('.result.domain', {
-            hasText: domain
-          })
-            .locator('.total')
-            .innerText()
-
-          const months = await page.locator('.result.domain', {
-            hasText: domain
-          })
-            .locator('select')
-            .evaluate((select: HTMLSelectElement) => select.value)
-
-          if (!price) {
-            this.logger.error('godaddy search domain info error')
-            throw new Error('godaddy search domain info error')
-          } else {
-            return {
-              domain,
-              price: `${price}/${parseInt(months)/12} year`,
-              realPrice: `${price}/${parseInt(months)/12} year`,
-              available: true,
-              buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
-            }
-          }
-        }
+        return this.getRequestResponse(domain, page)
       }
     })
   }
@@ -356,5 +321,36 @@ export class DomainService {
         available: false
       }
     }
+  }
+
+  private getRequestResponse(domain: string, page: Page): Promise<DomainInfo> {
+    return new Promise((resolve, reject) => {
+      page.on('requestfinished', async (request) => {
+        if (request.url() === 'https://www.domain.com/sfcore.do?searchDomain') {
+          const response = await request.response()
+          if (!response.ok()) {
+            reject(new Error(`listen request: ${request.url()} failed`))
+          }
+          const json = await response.json() as DomainResponse
+          const domainInfo = json.response.data.searchedDomains[0]
+          if (domainInfo.isAvailable) {
+            resolve({
+              domain,
+              price: `$${domainInfo.terms[0].price}`,
+              realPrice: `$${domainInfo.terms[0].price}`,
+              available: true,
+              buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
+            })
+          } else {
+            resolve({
+              domain,
+              price: '',
+              realPrice: '',
+              available: false
+            })
+          }
+        }
+      })
+    })
   }
 }

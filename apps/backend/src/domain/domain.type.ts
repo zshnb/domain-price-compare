@@ -29,3 +29,18 @@ export type AliyunResponse = {
     }[]
   }
 }
+
+export type DomainResponse = {
+  response: {
+    data: {
+      searchedDomains: {
+        isAvailable: boolean
+        terms: {
+          price: number
+          termUnit: string
+          term: number
+        }[]
+      }[]
+    }
+  }
+}
