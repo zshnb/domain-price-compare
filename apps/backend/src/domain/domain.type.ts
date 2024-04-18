@@ -70,3 +70,16 @@ export type WestCNResponse = {
     price: number
   }[]
 }
+
+export type XinnetResponse = {
+  result: {
+    yes: {
+      prices: {
+        price: number
+        activityPrice: number
+        renewPrice: number
+        timeAmount: number
+      }[]
+    }[]
+  }[]
+}

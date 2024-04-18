@@ -5,7 +5,7 @@ import {
   DomainResponse,
   GodaddyResponse,
   NameSiloResponse,
-  RegisterResponse, WestCNResponse
+  RegisterResponse, WestCNResponse, XinnetResponse
 } from "./domain.type";
 import sleep from "sleep-promise";
 import { Crawler } from "./crawler";
@@ -367,6 +367,37 @@ export class DomainService {
       price: `¥${domainInfo.price}`,
       realPrice: `¥${domainInfo.price}`,
       buyLink: `https://www.west.cn/main/whois.asp`,
+    }
+  }
+
+  async xinnet(domain: string) {
+    const array = domain.split('.')
+    const now = Date.now();
+    const response = await fetch(`https://domaincheck.xinnet.com/domainCheck?callbackparam=jQuery1_${now}&searchRandom=8&prefix=${array[0]}&suffix=.${array[1]}&_=${now}`, {
+      method: 'post',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+      },
+      body: JSON.stringify({
+        customdomain: [domain],
+        domains: [],
+        suffixs: [],
+        ifhksite: '0'
+      })
+    })
+    const text = await response.text()
+    const pattern = `(?<=jQuery1_${now}\\()(.|\\n)*(?=\\))`
+    const re = new RegExp(pattern, 'gm')
+    const jsonStr = re.exec(text)?.at(0)
+    const json = JSON.parse(`${jsonStr}`) as XinnetResponse[]
+    const domainInfo = json[0].result[0].yes[0]
+    const oneYearPrice = domainInfo.prices.find(it => it.timeAmount === 1)
+    return {
+      domain,
+      available: true,
+      price: `¥${oneYearPrice.price}`,
+      realPrice: `¥${oneYearPrice.price}`,
+      buyLink: `https://www.xinnet.com/domain/domainQueryResult.html?prefix=${array[0]}&suffix=.${array[1]}`,
     }
   }
 

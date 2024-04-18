@@ -112,4 +112,10 @@ describe('DomainService', () => {
       expect(result.available).toBeTruthy()
     }, 600000)
   });
+  describe("xinnet api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.xinnet('sleek123.com')
+      expect(result.available).toBeTruthy()
+    }, 600000)
+  });
 });
