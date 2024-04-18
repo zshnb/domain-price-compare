@@ -44,3 +44,10 @@ export type DomainResponse = {
     }
   }
 }
+
+export type GodaddyResponse = {
+  CurrentPriceDisplay: string
+  ExactMatchDomain: {
+    IsAvailable: boolean
+  }
+}

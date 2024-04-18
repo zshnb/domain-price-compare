@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import {AliyunResponse, DomainInfo, DomainResponse, NameSiloResponse} from "./domain.type";
+import { AliyunResponse, DomainInfo, DomainResponse, GodaddyResponse, NameSiloResponse } from "./domain.type";
 import sleep from "sleep-promise";
 import { Crawler } from "./crawler";
 import parse from "node-html-parser";
@@ -15,53 +15,23 @@ export class DomainService {
       url: 'https://www.godaddy.com/domainsearch/find?domainToCheck=sleek123.com',
       headless: false,
       processPage: async (page) => {
-        await page.locator('[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.click"]')
-          .click({
-            delay: 1000
-          })
-        const l = page.locator('.tray-content')
-          .locator('a[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.en_us.click"]')
-
-          await l.click()
-        await page.locator("#domain-search-box")
-          .fill(domain)
-        await page.locator("#domain-search-box")
-          .focus()
-        await page.keyboard.press('Enter')
-
-        await page.waitForSelector('.favorites-div', {state: "visible"})
-        const domainTakenLocator = page
-          .locator('[data-cy="dbsV2-badge"]', {
-            hasText: 'Domain Taken'
-          })
-        if (await domainTakenLocator.isVisible()) {
+        const json = (await this.getRequestResponse({
+          matchUrl: (url) => /https:\/\/.*godaddy.com(\/.*)?\/domainfind\/v1\/search\/exact.*/.test(url)
+        }, page)) as GodaddyResponse
+        if (json.ExactMatchDomain.IsAvailable) {
+          return {
+            domain,
+            price: json.CurrentPriceDisplay,
+            realPrice: json.CurrentPriceDisplay,
+            available: true,
+            buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
+          }
+        } else {
           return {
             domain,
             price: '',
             realPrice: '',
             available: false
-          }
-        } else {
-          const mainPriceLocator = page
-            .locator('[data-cy="availableCard"]')
-            .getByTestId("pricing-main-price")
-          const mainPrice = (await mainPriceLocator.innerText()) as string;
-          const oldPriceLocator = page
-            .locator('[data-cy="availableCard"]')
-            .getByTestId('pricing-strikethrough-price')
-          const oldPrice = (await oldPriceLocator.innerText()) as string
-
-          if (!mainPrice || !oldPrice) {
-            this.logger.error('godaddy search domain info error')
-            throw new Error('godaddy search domain info error')
-          } else {
-            return {
-              domain,
-              price: oldPrice,
-              realPrice: mainPrice,
-              available: true,
-              buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
-            }
           }
         }
       }
@@ -70,15 +40,9 @@ export class DomainService {
 
   async namecheap(domain: string): Promise<DomainInfo> {
     return this.crawler.doCrawler({
-      url: 'https://www.namecheap.com',
+      url: `https://www.namecheap.com/domains/registration/results/?domain=${domain}`,
       headless: false,
       processPage: async (page) => {
-        await page.locator('#static-domain-search-domain-search-input')
-          .fill(domain)
-        await page.locator('#static-domain-search')
-          .locator('[aria-label="Search"]')
-          .click()
-
         await page.locator('section.standard', {
           has: page.locator('article.available,article.unavailable')
         })
@@ -283,7 +247,26 @@ export class DomainService {
           .first()
         await searchButton.click()
 
-        return this.getRequestResponse(domain, page)
+        const json = (await this.getRequestResponse({
+          matchUrl: (url) => url === 'https://www.domain.com/sfcore.do?searchDomain'
+        },  page)) as DomainResponse
+        const domainInfo = json.response.data.searchedDomains[0]
+        if (domainInfo.isAvailable) {
+          return {
+            domain,
+            price: `$${domainInfo.terms[0].price}`,
+            realPrice: `$${domainInfo.terms[0].price}`,
+            available: true,
+            buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
+          }
+        } else {
+          return {
+            domain,
+            price: '',
+            realPrice: '',
+            available: false
+          }
+        }
       }
     })
   }
@@ -323,32 +306,29 @@ export class DomainService {
     }
   }
 
-  private getRequestResponse(domain: string, page: Page): Promise<DomainInfo> {
+  private getRequestResponse(
+    matchRequest: {
+      matchUrl: (url: string) => boolean
+      matchBody?: (body: any) => boolean
+    }, page: Page) {
     return new Promise((resolve, reject) => {
       page.on('requestfinished', async (request) => {
-        if (request.url() === 'https://www.domain.com/sfcore.do?searchDomain') {
+        let isRequestMatch = false
+        const {matchUrl, matchBody} = matchRequest
+        if (matchUrl(request.url())) {
+          isRequestMatch = true
+          if (matchBody) {
+            const requestBody = request.postDataJSON()
+            isRequestMatch = matchBody(requestBody);
+          }
+        }
+        if (isRequestMatch) {
           const response = await request.response()
           if (!response.ok()) {
             reject(new Error(`listen request: ${request.url()} failed`))
           }
-          const json = await response.json() as DomainResponse
-          const domainInfo = json.response.data.searchedDomains[0]
-          if (domainInfo.isAvailable) {
-            resolve({
-              domain,
-              price: `$${domainInfo.terms[0].price}`,
-              realPrice: `$${domainInfo.terms[0].price}`,
-              available: true,
-              buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
-            })
-          } else {
-            resolve({
-              domain,
-              price: '',
-              realPrice: '',
-              available: false
-            })
-          }
+          const json = await response.json()
+          resolve(json)
         }
       })
     })
