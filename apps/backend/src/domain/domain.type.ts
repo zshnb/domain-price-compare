@@ -64,3 +64,9 @@ export type RegisterResponse = {
     }
   }
 }
+
+export type WestCNResponse = {
+  success: {
+    price: number
+  }[]
+}

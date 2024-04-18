@@ -5,7 +5,7 @@ import {
   DomainResponse,
   GodaddyResponse,
   NameSiloResponse,
-  RegisterResponse
+  RegisterResponse, WestCNResponse
 } from "./domain.type";
 import sleep from "sleep-promise";
 import { Crawler } from "./crawler";
@@ -342,6 +342,32 @@ export class DomainService {
         }
       }
     })
+  }
+
+  async westCN(domain: string) {
+    const response = await fetch(`https://netservice.west.cn/netcore/api/Whois/DomainWhois`, {
+      method: 'post',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'content-type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoieWFuZmF0ZXN0IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvc2lkIjoiMTc3NzI0MiIsImp0aSI6Ijk3OTQ1ODRkNTFlNjRmZTc5NjMyZDcxYmNkMDMwYjlhIiwiaWF0IjoiMTcxMzQyMTQ1NSIsIm5iZiI6IjE3MTM0MjE0NTUiLCJleHAiOiIxNzEzNDI1MDU1IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9leHBpcmF0aW9uIjoiMjAyNC0wNC0xOCAxNToyNDoxNSIsImlzcyI6Imh0dHA6Ly93d3cud2VzdC5jbiIsImF1ZCI6Imh0dHA6Ly93d3cud2VzdC5jbi9hcGkiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc2VyIiwiVWlwIjoiMTI0Ljc4LjE1My4xNjUiLCJJc2Nuc2l0ZSI6IjEiLCJEYiI6Indlc3QifQ.iu2AZk-vTo7vDaQumoJPNxVfv9dj7hwCy_Reo-ZK9_8'
+      },
+      body: JSON.stringify({
+        customdomain: [domain],
+        domains: [],
+        suffixs: [],
+        ifhksite: '0'
+      })
+    })
+    const json = await response.json() as WestCNResponse
+    const domainInfo = json.success[0]
+    return {
+      domain,
+      available: true,
+      price: `¥${domainInfo.price}`,
+      realPrice: `¥${domainInfo.price}`,
+      buyLink: `https://www.west.cn/main/whois.asp`,
+    }
   }
 
   private getRequestResponse(

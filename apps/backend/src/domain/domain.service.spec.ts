@@ -106,4 +106,10 @@ describe('DomainService', () => {
       expect(result.available).toBeTruthy()
     }, 600000)
   });
+  describe("west cn api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.westCN('sleek123.com')
+      expect(result.available).toBeTruthy()
+    }, 600000)
+  });
 });
