@@ -3,7 +3,7 @@ import { Inter as FontSans } from "next/font/google"
 
 import { cn } from "@/lib/utils"
 import {ReactNode} from "react";
-import {LocaleContext} from "@/context/LocaleContext";
+import { useTranslation } from "@/app/i18n";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -16,14 +16,15 @@ export async function generateStaticParams() {
   return languages.map((locale) => ({ locale }))
 }
 
-export default function RootLayout({ children, params }: {children: ReactNode, params: {
+export default async function RootLayout({ children, params }: {children: ReactNode, params: {
   lng: string
 }}) {
+  const {t} = await useTranslation(params.lng)
   return (
     <html lang={params.lng} suppressHydrationWarning>
     <head>
       <link rel="icon" href="/apps/web/src/app/[locale]/icon.png" sizes="any" />
-      <title>域名比价</title>
+      <title>{t('metadata.title')}</title>
     </head>
     <body
       className={cn(

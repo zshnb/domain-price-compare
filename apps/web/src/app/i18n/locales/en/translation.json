@@ -1,6 +1,10 @@
 {
+  "metadata": {
+    "title": "BestDom - Real-time best domain price",
+    "description": ""
+  },
   "index": {
-    "headerLogo": "Domain Price Compare",
+    "headerLogo": "Best Domain Price",
     "domainForm": {
       "invalidDomainMessage": "Invalid domain",
       "domainInputPlaceholder": "Please type domain",

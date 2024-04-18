@@ -20,14 +20,13 @@ export default function Home({params}: {
       <header className='border-b px-80 min-h-20 flex items-center'>
         <p className='font-extrabold text-2xl'>{t('index.headerLogo')}</p>
       </header>
-      <main className="flex min-h-screen flex-col items-center pt-24 px-48 gap-y-4">
+      <main className="flex min-h-screen flex-col items-center py-24 px-48">
         <DomainForm
           onStart={() => {
             setLoading(true)
             setDomains([])
           }}
           onFetchDomainInfo={(domainInfo) => {
-            console.log('onFetchDomainInfo', domainInfo);
             setDomains(prevState => {
               return [...prevState, domainInfo];
             });

@@ -64,7 +64,7 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex items-center justify-center gap-x-2">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full flex items-center justify-center gap-x-2 mb-10">
         <FormField
           control={form.control}
           name="domain"
