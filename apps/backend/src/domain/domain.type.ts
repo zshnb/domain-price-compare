@@ -51,3 +51,16 @@ export type GodaddyResponse = {
     IsAvailable: boolean
   }
 }
+
+export type RegisterResponse = {
+  response: {
+    data: {
+      searchedDomains: {
+        available: boolean
+        currency: string
+        unitPrice: number
+        unitPriceWithCurrency: string
+      }[]
+    }
+  }
+}

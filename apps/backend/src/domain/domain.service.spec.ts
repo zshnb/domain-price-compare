@@ -100,4 +100,10 @@ describe('DomainService', () => {
       expect(result.available).toBeFalsy()
     }, 600000)
   });
+  describe("register api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.register('sleek123.com')
+      expect(result.available).toBeTruthy()
+    }, 600000)
+  });
 });

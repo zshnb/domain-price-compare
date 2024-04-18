@@ -1,5 +1,12 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { AliyunResponse, DomainInfo, DomainResponse, GodaddyResponse, NameSiloResponse } from "./domain.type";
+import {
+  AliyunResponse,
+  DomainInfo,
+  DomainResponse,
+  GodaddyResponse,
+  NameSiloResponse,
+  RegisterResponse
+} from "./domain.type";
 import sleep from "sleep-promise";
 import { Crawler } from "./crawler";
 import parse from "node-html-parser";
@@ -270,6 +277,7 @@ export class DomainService {
       }
     })
   }
+
   async dynadot(domain: string): Promise<DomainInfo> {
     const urlencoded = new URLSearchParams();
     urlencoded.append("domain", `${domain}`);
@@ -304,6 +312,36 @@ export class DomainService {
         available: false
       }
     }
+  }
+
+  async register(domain: string): Promise<DomainInfo> {
+    return this.crawler.doCrawler({
+      url: 'https://www.register.com/products/domain/domain-search-results',
+      headless: false,
+      processPage: async (page) => {
+        await page.getByPlaceholder('Search again')
+          .fill(domain)
+
+        const searchButton = page.locator('button', {hasText: 'SEARCH'})
+          .first()
+        await searchButton.click()
+
+        const json = (await this.getRequestResponse({
+          matchUrl: (url) => url === 'https://www.register.com/sfcore.do',
+          matchBody: (body: any) => {
+            return body.request.requestInfo.method === 'searchDomain'
+          }
+        },  page)) as RegisterResponse
+        const domainInfo = json.response.data.searchedDomains[0]
+        return {
+          domain,
+          price: domainInfo.unitPriceWithCurrency,
+          realPrice: domainInfo.unitPriceWithCurrency,
+          available: true,
+          buyLink: `https://www.register.com/products/domain/domain-search-results`
+        }
+      }
+    })
   }
 
   private getRequestResponse(
