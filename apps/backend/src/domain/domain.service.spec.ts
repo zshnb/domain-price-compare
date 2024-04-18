@@ -118,4 +118,11 @@ describe('DomainService', () => {
       expect(result.available).toBeTruthy()
     }, 600000)
   });
+  describe("huawei api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.huawei('sleek123.com')
+      expect(result.available).toBeTruthy()
+      expect(result.price.length).toBeGreaterThan(0)
+    }, 600000)
+  });
 });

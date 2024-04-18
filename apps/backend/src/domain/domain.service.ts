@@ -401,6 +401,27 @@ export class DomainService {
     }
   }
 
+  async huawei(domain: string): Promise<DomainInfo> {
+    const array = domain.split('.')
+    return this.crawler.doCrawler({
+      url: `https://www.huaweicloud.com/product/domain/search.html?domainName=${domain}&domainSuffix=.${array[1]}`,
+      headless: true,
+      processPage: async (page) => {
+        await page.waitForTimeout(2000)
+        await page.screenshot({path: 'screenshot.png'})
+        const price = await page.locator("#singleSearchResult > li.list-item.perfetct-padding > div > div.item-section.item-price-box.cf.find-price-box > div.list-more-price-box.item-price-right > div.list-more-price.item-price-left > span.item-price-color > span.item-price-num")
+          .innerText()
+        return {
+          domain,
+          price,
+          realPrice: price,
+          available: true,
+          buyLink: `https://www.register.com/products/domain/domain-search-results`
+        }
+      }
+    })
+  }
+
   private getRequestResponse(
     matchRequest: {
       matchUrl: (url: string) => boolean
