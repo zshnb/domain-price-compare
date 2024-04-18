@@ -1,26 +1,33 @@
 import {ColumnDef} from "@tanstack/react-table";
-import {DomainInfo} from "@/components/domainTable/domainTable.type";
 import {Check, MousePointer2, X} from "lucide-react";
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
 import {useLocaleContext} from "@/context/LocaleContext";
 import {useTranslation} from "@/app/i18n/client";
+import { DomainInfo } from "@/types";
+import Image from "next/image";
 
 export default function useDomainTable() {
   const lang = useLocaleContext().lang
   const {t} = useTranslation(lang)
   const columns: ColumnDef<DomainInfo>[] = [
     {
+      accessorKey: 'icon',
+      id: 'icon'
+    },
+    {
       accessorKey: "register",
       header: t('index.domainTable.header.register'),
       cell: ({ row }) => {
         const register = row.getValue<string>("register");
-        return <p>{register}</p>;
+        const icon = row.getValue<string>('icon')
+        return (
+          <div className={'flex gap-x-2 items-center'}>
+            <Image src={icon} alt={'icon'} width={32} height={32}/>
+            <p>{register}</p>
+          </div>
+        )
       }
-    },
-    {
-      accessorKey: "domain",
-      header: t('index.domainTable.header.domain'),
     },
     {
       accessorKey: "price",
@@ -66,7 +73,7 @@ export default function useDomainTable() {
           const link = row.getValue<string>("buyLink");
           return (
             <Link className={buttonVariants({ variant: "outline" })} href={link} target="_blank">
-          <MousePointer2 className="h-4 w-4" />
+              <MousePointer2 className="h-4 w-4" />
             </Link>
         );
         } else {

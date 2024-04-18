@@ -12,9 +12,9 @@ import {Input} from "@/components/ui/input"
 import {zodResolver} from "@hookform/resolvers/zod"
 import {useForm} from "react-hook-form"
 import {z} from "zod"
-import {DomainInfo, DomainRegister} from "@/components/domainTable/domainTable.type";
 import {useTranslation} from "@/app/i18n/client";
 import {useLocaleContext} from "@/context/LocaleContext";
+import { DomainInfo, DomainRegister } from "@/types";
 
 export type DomainFormProps = {
   onStart: () => void

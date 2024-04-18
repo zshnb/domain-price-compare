@@ -1,10 +1,10 @@
 "use client";
 import DomainForm from "@/components/domainForm/domainForm";
 import DomainTable from "@/components/domainTable/domainTable";
-import {DomainInfo} from "@/components/domainTable/domainTable.type";
 import {useState} from "react";
 import {useTranslation} from "@/app/i18n/client";
 import {LocaleContext} from "@/context/LocaleContext";
+import { DomainInfo } from "@/types";
 
 export default function Home({params}: {
   params: { locale: string }
@@ -27,6 +27,7 @@ export default function Home({params}: {
             setDomains([])
           }}
           onFetchDomainInfo={(domainInfo) => {
+            console.log('onFetchDomainInfo', domainInfo);
             setDomains(prevState => {
               return [...prevState, domainInfo];
             });

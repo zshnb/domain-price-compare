@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {DomainInfo, DomainRegister} from "@/components/domainTable/domainTable.type";
+import { DomainRegister } from "@/types";
 
 
 export async function GET(req: NextRequest) {
@@ -12,7 +12,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.tencent
+          register: DomainRegister.tencent,
+          icon: 'https://cloudcache.tencent-cloud.com/qcloud/favicon.ico'
         }
       })
     } else {
