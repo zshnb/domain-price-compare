@@ -19,9 +19,15 @@ export class DomainService {
   }
   async godaddy(domain: string): Promise<DomainInfo> {
     return this.crawler.doCrawler({
-      url: 'https://www.godaddy.com/domainsearch/find?domainToCheck=sleek123.com',
+      url: 'https://www.godaddy.com',
       headless: false,
       processPage: async (page) => {
+        await page.getByTestId('domain-search-box-input')
+          .fill(domain)
+        await page.getByTestId('domain-search-box-input')
+          .focus()
+        await page.waitForTimeout(200)
+        await page.keyboard.press('Enter')
         const json = (await this.getRequestResponse({
           matchUrl: (url) => /https:\/\/.*godaddy.com(\/.*)?\/domainfind\/v1\/search\/exact.*/.test(url)
         }, page)) as GodaddyResponse
@@ -324,6 +330,7 @@ export class DomainService {
 
         const searchButton = page.locator('button', {hasText: 'SEARCH'})
           .first()
+        await page.waitForTimeout(200)
         await searchButton.click()
 
         const json = (await this.getRequestResponse({
@@ -345,12 +352,36 @@ export class DomainService {
   }
 
   async westCN(domain: string) {
+    async function getAuthorizationToken() {
+      const response = await fetch('https://www.west.cn/main/whois.asp', {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        }
+      })
+      const html = await response.text()
+      const dom = parse(html)
+      const scripts = Array.from(dom.getElementsByTagName('script'))
+      const pattern = /(?<=(var token='))([^';]|\n)*(?=')/
+      let token = ''
+      scripts.forEach(script => {
+        const matchResult = script.innerText.match(pattern)
+        if (matchResult) {
+          token = matchResult[0]
+        }
+      })
+      return token
+    }
+
+    const token = await getAuthorizationToken()
+    if (!token) {
+      throw new Error('get westCN authorization token failed')
+    }
     const response = await fetch(`https://netservice.west.cn/netcore/api/Whois/DomainWhois`, {
       method: 'post',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
         'content-type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoieWFuZmF0ZXN0IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvc2lkIjoiMTc3NzI0MiIsImp0aSI6Ijk3OTQ1ODRkNTFlNjRmZTc5NjMyZDcxYmNkMDMwYjlhIiwiaWF0IjoiMTcxMzQyMTQ1NSIsIm5iZiI6IjE3MTM0MjE0NTUiLCJleHAiOiIxNzEzNDI1MDU1IiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9leHBpcmF0aW9uIjoiMjAyNC0wNC0xOCAxNToyNDoxNSIsImlzcyI6Imh0dHA6Ly93d3cud2VzdC5jbiIsImF1ZCI6Imh0dHA6Ly93d3cud2VzdC5jbi9hcGkiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc2VyIiwiVWlwIjoiMTI0Ljc4LjE1My4xNjUiLCJJc2Nuc2l0ZSI6IjEiLCJEYiI6Indlc3QifQ.iu2AZk-vTo7vDaQumoJPNxVfv9dj7hwCy_Reo-ZK9_8'
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         customdomain: [domain],
@@ -408,7 +439,6 @@ export class DomainService {
       headless: true,
       processPage: async (page) => {
         await page.waitForTimeout(2000)
-        await page.screenshot({path: 'screenshot.png'})
         const price = await page.locator("#singleSearchResult > li.list-item.perfetct-padding > div > div.item-section.item-price-box.cf.find-price-box > div.list-more-price-box.item-price-right > div.list-more-price.item-price-left > span.item-price-color > span.item-price-num")
           .innerText()
         return {
@@ -443,8 +473,12 @@ export class DomainService {
           if (!response.ok()) {
             reject(new Error(`listen request: ${request.url()} failed`))
           }
-          const json = await response.json()
-          resolve(json)
+          const text = await response.text()
+          try {
+            resolve(JSON.parse(text))
+          } catch (e) {
+            this.logger.error(`get request json response error, request: ${request.url()}, response: ${text}`, e)
+          }
         }
       })
     })

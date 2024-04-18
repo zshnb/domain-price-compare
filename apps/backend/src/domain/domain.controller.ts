@@ -93,4 +93,56 @@ export class DomainController {
       throw new BadRequestException()
     }
   }
+
+  @Get('register')
+  async register(@Query('domain') domain: string) {
+    try {
+      const result = await this.domainService.register(domain)
+      return {
+        data: result,
+      }
+    } catch (e) {
+      console.error('domain api error', e);
+      throw new BadRequestException()
+    }
+  }
+
+  @Get('westCN')
+  async westCN(@Query('domain') domain: string) {
+    try {
+      const result = await this.domainService.westCN(domain)
+      return {
+        data: result,
+      }
+    } catch (e) {
+      console.error('domain api error', e);
+      throw new BadRequestException()
+    }
+  }
+
+  @Get('xinnet')
+  async xinnet(@Query('domain') domain: string) {
+    try {
+      const result = await this.domainService.xinnet(domain)
+      return {
+        data: result,
+      }
+    } catch (e) {
+      console.error('domain api error', e);
+      throw new BadRequestException()
+    }
+  }
+
+  @Get('huawei')
+  async huawei(@Query('domain') domain: string) {
+    try {
+      const result = await this.domainService.huawei(domain)
+      return {
+        data: result,
+      }
+    } catch (e) {
+      console.error('domain api error', e);
+      throw new BadRequestException()
+    }
+  }
 }
