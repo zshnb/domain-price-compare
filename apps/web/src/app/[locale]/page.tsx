@@ -5,6 +5,7 @@ import {useState} from "react";
 import {useTranslation} from "@/app/i18n/client";
 import {LocaleContext} from "@/context/LocaleContext";
 import { DomainInfo } from "@/types";
+import CurrencySwitcher from "@/components/currencySwitcher/currencySwitcher";
 
 export default function Home({params}: {
   params: { locale: string }
@@ -17,8 +18,9 @@ export default function Home({params}: {
   const [loading, setLoading] = useState<boolean>(false);
   return (
     <LocaleContext.Provider value={localeContext}>
-      <header className='border-b px-80 min-h-20 flex items-center'>
+      <header className='border-b px-80 min-h-20 flex items-center justify-between'>
         <p className='font-extrabold text-2xl'>{t('index.headerLogo')}</p>
+        <CurrencySwitcher onCurrencyChange={() => {}}/>
       </header>
       <main className="flex min-h-screen flex-col items-center py-24 px-48">
         <DomainForm
