@@ -14,7 +14,7 @@ export const DomainRegister = {
   huawei: '华为云',
   westCN: '西部数码',
   xinnet: '新网',
-  // godaddy: 'GoDaddy',
+  godaddy: 'GoDaddy',
   dynadot: 'dynadot',
   namesilo: 'NameSilo',
   namecheap: 'NameCheap',
