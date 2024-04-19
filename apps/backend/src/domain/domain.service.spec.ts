@@ -100,4 +100,29 @@ describe('DomainService', () => {
       expect(result.available).toBeFalsy()
     }, 600000)
   });
+  describe("register api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.register('sleek123.com')
+      expect(result.available).toBeTruthy()
+    }, 600000)
+  });
+  describe("west cn api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.westCN('sleek123.com')
+      expect(result.available).toBeTruthy()
+    }, 600000)
+  });
+  describe("xinnet api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.xinnet('sleek123.com')
+      expect(result.available).toBeTruthy()
+    }, 600000)
+  });
+  describe("huawei api", () => {
+    it('success with available domain', async () => {
+      const result = await domainService.huawei('sleek123.com')
+      expect(result.available).toBeTruthy()
+      expect(result.price.length).toBeGreaterThan(0)
+    }, 600000)
+  });
 });

@@ -1,5 +1,5 @@
 import {NextRequest, NextResponse} from "next/server";
-import {DomainRegister} from "@/components/domainTable/domainTable.type";
+import { DomainRegister } from "@/types";
 export const maxDuration = 60;
 
 
@@ -13,7 +13,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.domain
+          register: DomainRegister.domain,
+          icon: '/icons/domain.ico'
         }
       })
     } else {

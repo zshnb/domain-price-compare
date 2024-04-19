@@ -1,5 +1,12 @@
 import { Injectable, Logger } from "@nestjs/common";
-import {AliyunResponse, DomainInfo, DomainResponse, NameSiloResponse} from "./domain.type";
+import {
+  AliyunResponse,
+  DomainInfo,
+  DomainResponse,
+  GodaddyResponse,
+  NameSiloResponse,
+  RegisterResponse, WestCNResponse, XinnetResponse
+} from "./domain.type";
 import sleep from "sleep-promise";
 import { Crawler } from "./crawler";
 import parse from "node-html-parser";
@@ -12,56 +19,32 @@ export class DomainService {
   }
   async godaddy(domain: string): Promise<DomainInfo> {
     return this.crawler.doCrawler({
-      url: 'https://www.godaddy.com/domainsearch/find?domainToCheck=sleek123.com',
+      url: 'https://www.godaddy.com',
       headless: false,
       processPage: async (page) => {
-        await page.locator('[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.click"]')
-          .click({
-            delay: 1000
-          })
-        const l = page.locator('.tray-content')
-          .locator('a[data-eid="uxp.hyd.sales_footer_seechange.sales_header.market_selector.en_us.click"]')
-
-          await l.click()
-        await page.locator("#domain-search-box")
+        await page.getByTestId('domain-search-box-input')
           .fill(domain)
-        await page.locator("#domain-search-box")
+        await page.getByTestId('domain-search-box-input')
           .focus()
+        await page.waitForTimeout(200)
         await page.keyboard.press('Enter')
-
-        await page.waitForSelector('.favorites-div', {state: "visible"})
-        const domainTakenLocator = page
-          .locator('[data-cy="dbsV2-badge"]', {
-            hasText: 'Domain Taken'
-          })
-        if (await domainTakenLocator.isVisible()) {
+        const json = (await this.getRequestResponse({
+          matchUrl: (url) => /https:\/\/.*godaddy.com(\/.*)?\/domainfind\/v1\/search\/exact.*/.test(url)
+        }, page)) as GodaddyResponse
+        if (json.ExactMatchDomain.IsAvailable) {
+          return {
+            domain,
+            price: json.CurrentPriceDisplay,
+            realPrice: json.CurrentPriceDisplay,
+            available: true,
+            buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
+          }
+        } else {
           return {
             domain,
             price: '',
             realPrice: '',
             available: false
-          }
-        } else {
-          const mainPriceLocator = page
-            .locator('[data-cy="availableCard"]')
-            .getByTestId("pricing-main-price")
-          const mainPrice = (await mainPriceLocator.innerText()) as string;
-          const oldPriceLocator = page
-            .locator('[data-cy="availableCard"]')
-            .getByTestId('pricing-strikethrough-price')
-          const oldPrice = (await oldPriceLocator.innerText()) as string
-
-          if (!mainPrice || !oldPrice) {
-            this.logger.error('godaddy search domain info error')
-            throw new Error('godaddy search domain info error')
-          } else {
-            return {
-              domain,
-              price: oldPrice,
-              realPrice: mainPrice,
-              available: true,
-              buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
-            }
           }
         }
       }
@@ -70,15 +53,9 @@ export class DomainService {
 
   async namecheap(domain: string): Promise<DomainInfo> {
     return this.crawler.doCrawler({
-      url: 'https://www.namecheap.com',
+      url: `https://www.namecheap.com/domains/registration/results/?domain=${domain}`,
       headless: false,
       processPage: async (page) => {
-        await page.locator('#static-domain-search-domain-search-input')
-          .fill(domain)
-        await page.locator('#static-domain-search')
-          .locator('[aria-label="Search"]')
-          .click()
-
         await page.locator('section.standard', {
           has: page.locator('article.available,article.unavailable')
         })
@@ -283,10 +260,30 @@ export class DomainService {
           .first()
         await searchButton.click()
 
-        return this.getRequestResponse(domain, page)
+        const json = (await this.getRequestResponse({
+          matchUrl: (url) => url === 'https://www.domain.com/sfcore.do?searchDomain'
+        },  page)) as DomainResponse
+        const domainInfo = json.response.data.searchedDomains[0]
+        if (domainInfo.isAvailable) {
+          return {
+            domain,
+            price: `$${domainInfo.terms[0].price}`,
+            realPrice: `$${domainInfo.terms[0].price}`,
+            available: true,
+            buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
+          }
+        } else {
+          return {
+            domain,
+            price: '',
+            realPrice: '',
+            available: false
+          }
+        }
       }
     })
   }
+
   async dynadot(domain: string): Promise<DomainInfo> {
     const urlencoded = new URLSearchParams();
     urlencoded.append("domain", `${domain}`);
@@ -323,31 +320,164 @@ export class DomainService {
     }
   }
 
-  private getRequestResponse(domain: string, page: Page): Promise<DomainInfo> {
+  async register(domain: string): Promise<DomainInfo> {
+    return this.crawler.doCrawler({
+      url: 'https://www.register.com/products/domain/domain-search-results',
+      headless: false,
+      processPage: async (page) => {
+        await page.getByPlaceholder('Search again')
+          .fill(domain)
+
+        const searchButton = page.locator('button', {hasText: 'SEARCH'})
+          .first()
+        await page.waitForTimeout(200)
+        await searchButton.click()
+
+        const json = (await this.getRequestResponse({
+          matchUrl: (url) => url === 'https://www.register.com/sfcore.do',
+          matchBody: (body: any) => {
+            return body.request.requestInfo.method === 'searchDomain'
+          }
+        },  page)) as RegisterResponse
+        const domainInfo = json.response.data.searchedDomains[0]
+        return {
+          domain,
+          price: domainInfo.unitPriceWithCurrency,
+          realPrice: domainInfo.unitPriceWithCurrency,
+          available: true,
+          buyLink: `https://www.register.com/products/domain/domain-search-results`
+        }
+      }
+    })
+  }
+
+  async westCN(domain: string) {
+    async function getAuthorizationToken() {
+      const response = await fetch('https://www.west.cn/main/whois.asp', {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        }
+      })
+      const html = await response.text()
+      const dom = parse(html)
+      const scripts = Array.from(dom.getElementsByTagName('script'))
+      const pattern = /(?<=(var token='))([^';]|\n)*(?=')/
+      let token = ''
+      scripts.forEach(script => {
+        const matchResult = script.innerText.match(pattern)
+        if (matchResult) {
+          token = matchResult[0]
+        }
+      })
+      return token
+    }
+
+    const token = await getAuthorizationToken()
+    if (!token) {
+      throw new Error('get westCN authorization token failed')
+    }
+    const response = await fetch(`https://netservice.west.cn/netcore/api/Whois/DomainWhois`, {
+      method: 'post',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'content-type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        customdomain: [domain],
+        domains: [],
+        suffixs: [],
+        ifhksite: '0'
+      })
+    })
+    const json = await response.json() as WestCNResponse
+    const domainInfo = json.success[0]
+    return {
+      domain,
+      available: true,
+      price: `¥${domainInfo.price}`,
+      realPrice: `¥${domainInfo.price}`,
+      buyLink: `https://www.west.cn/main/whois.asp`,
+    }
+  }
+
+  async xinnet(domain: string) {
+    const array = domain.split('.')
+    const now = Date.now();
+    const response = await fetch(`https://domaincheck.xinnet.com/domainCheck?callbackparam=jQuery1_${now}&searchRandom=8&prefix=${array[0]}&suffix=.${array[1]}&_=${now}`, {
+      method: 'post',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+      },
+      body: JSON.stringify({
+        customdomain: [domain],
+        domains: [],
+        suffixs: [],
+        ifhksite: '0'
+      })
+    })
+    const text = await response.text()
+    const pattern = `(?<=jQuery1_${now}\\()(.|\\n)*(?=\\))`
+    const re = new RegExp(pattern, 'gm')
+    const jsonStr = re.exec(text)?.at(0)
+    const json = JSON.parse(`${jsonStr}`) as XinnetResponse[]
+    const domainInfo = json[0].result[0].yes[0]
+    const oneYearPrice = domainInfo.prices.find(it => it.timeAmount === 1)
+    return {
+      domain,
+      available: true,
+      price: `¥${oneYearPrice.price}`,
+      realPrice: `¥${oneYearPrice.price}`,
+      buyLink: `https://www.xinnet.com/domain/domainQueryResult.html?prefix=${array[0]}&suffix=.${array[1]}`,
+    }
+  }
+
+  async huawei(domain: string): Promise<DomainInfo> {
+    const array = domain.split('.')
+    return this.crawler.doCrawler({
+      url: `https://www.huaweicloud.com/product/domain/search.html?domainName=${domain}&domainSuffix=.${array[1]}`,
+      headless: true,
+      processPage: async (page) => {
+        await page.waitForTimeout(2000)
+        const price = await page.locator("#singleSearchResult > li.list-item.perfetct-padding > div > div.item-section.item-price-box.cf.find-price-box > div.list-more-price-box.item-price-right > div.list-more-price.item-price-left > span.item-price-color > span.item-price-num")
+          .innerText()
+        return {
+          domain,
+          price,
+          realPrice: price,
+          available: true,
+          buyLink: `https://www.register.com/products/domain/domain-search-results`
+        }
+      }
+    })
+  }
+
+  private getRequestResponse(
+    matchRequest: {
+      matchUrl: (url: string) => boolean
+      matchBody?: (body: any) => boolean
+    }, page: Page) {
     return new Promise((resolve, reject) => {
       page.on('requestfinished', async (request) => {
-        if (request.url() === 'https://www.domain.com/sfcore.do?searchDomain') {
+        let isRequestMatch = false
+        const {matchUrl, matchBody} = matchRequest
+        if (matchUrl(request.url())) {
+          isRequestMatch = true
+          if (matchBody) {
+            const requestBody = request.postDataJSON()
+            isRequestMatch = matchBody(requestBody);
+          }
+        }
+        if (isRequestMatch) {
           const response = await request.response()
           if (!response.ok()) {
             reject(new Error(`listen request: ${request.url()} failed`))
           }
-          const json = await response.json() as DomainResponse
-          const domainInfo = json.response.data.searchedDomains[0]
-          if (domainInfo.isAvailable) {
-            resolve({
-              domain,
-              price: `$${domainInfo.terms[0].price}`,
-              realPrice: `$${domainInfo.terms[0].price}`,
-              available: true,
-              buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
-            })
-          } else {
-            resolve({
-              domain,
-              price: '',
-              realPrice: '',
-              available: false
-            })
+          const text = await response.text()
+          try {
+            resolve(JSON.parse(text))
+          } catch (e) {
+            this.logger.error(`get request json response error, request: ${request.url()}, response: ${text}`, e)
           }
         }
       })

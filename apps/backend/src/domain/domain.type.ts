@@ -44,3 +44,42 @@ export type DomainResponse = {
     }
   }
 }
+
+export type GodaddyResponse = {
+  CurrentPriceDisplay: string
+  ExactMatchDomain: {
+    IsAvailable: boolean
+  }
+}
+
+export type RegisterResponse = {
+  response: {
+    data: {
+      searchedDomains: {
+        available: boolean
+        currency: string
+        unitPrice: number
+        unitPriceWithCurrency: string
+      }[]
+    }
+  }
+}
+
+export type WestCNResponse = {
+  success: {
+    price: number
+  }[]
+}
+
+export type XinnetResponse = {
+  result: {
+    yes: {
+      prices: {
+        price: number
+        activityPrice: number
+        renewPrice: number
+        timeAmount: number
+      }[]
+    }[]
+  }[]
+}

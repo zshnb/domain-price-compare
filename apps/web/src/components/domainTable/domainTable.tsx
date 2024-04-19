@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable
@@ -15,13 +14,11 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table";
-import { DomainInfo } from "@/components/domainTable/domainTable.type";
 import Spinner from "@/components/spinner/spinner";
 import {useTranslation} from "@/app/i18n/client";
 import {useLocaleContext} from "@/context/LocaleContext";
 import useDomainTable from "@/hooks/useDomainTable";
-
-
+import { DomainInfo } from "@/types";
 
 export type DomainTableProps = {
   data: DomainInfo[]
@@ -43,7 +40,7 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
+              {headerGroup.headers.filter(it => it.column.columnDef.id !== 'icon').map((header) => {
                 return (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -65,7 +62,7 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
               >
-                {row.getVisibleCells().map((cell) => (
+                {row.getVisibleCells().filter(it => it.column.columnDef.id !== 'icon').map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
