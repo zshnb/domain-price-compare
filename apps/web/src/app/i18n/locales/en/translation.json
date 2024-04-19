@@ -1,14 +1,16 @@
 {
   "metadata": {
     "title": "BestDom - Real-time best domain price",
-    "description": ""
+    "description": "Best Domain Price, get your domain price in the most popular register"
   },
   "index": {
     "headerLogo": "Best Domain Price",
     "domainForm": {
       "invalidDomainMessage": "Invalid domain",
       "domainInputPlaceholder": "Please type domain",
-      "submitButton": "Search"
+      "submitButton": "Search",
+      "inputCustomTld": "Type Tld",
+      "selectTld": "Select Tld"
     },
     "domainTable": {
       "emptyMessage": "No result",

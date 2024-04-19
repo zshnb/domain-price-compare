@@ -1,14 +1,16 @@
 {
   "metadata": {
     "title": "价优域 - 实时最优域名价格",
-    "description": "价优域，"
+    "description": "价优域，实时获取主流域名商的域名价格"
   },
   "index": {
     "headerLogo": "域名比价",
     "domainForm": {
       "invalidDomainMessage": "域名不合法",
       "domainInputPlaceholder": "请输入域名",
-      "submitButton": "搜索"
+      "submitButton": "搜索",
+      "inputCustomTld": "输入后缀",
+      "selectTld": "选择后缀"
     },
     "domainTable": {
       "emptyMessage": "暂无结果",
