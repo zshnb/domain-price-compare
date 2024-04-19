@@ -1,7 +1,9 @@
+type Currency = 'USD' | 'RMB'
 export type DomainInfo ={
   domain: string
-  price: string
-  realPrice: string
+  price: number
+  realPrice: number
+  currency: Currency
   available: boolean
   buyLink?: string
 }
