@@ -6,14 +6,21 @@ import {useLocaleContext} from "@/context/LocaleContext";
 import {useTranslation} from "@/app/i18n/client";
 import { DomainInfo } from "@/types";
 import Image from "next/image";
+import {convertCurrency} from "@/lib/money";
+import {useCurrencyContext} from "@/context/CurrencyContext";
 
 export default function useDomainTable() {
   const lang = useLocaleContext().lang
+  const currentCurrency = useCurrencyContext()
   const {t} = useTranslation(lang)
   const columns: ColumnDef<DomainInfo>[] = [
     {
       accessorKey: 'icon',
       id: 'icon'
+    },
+    {
+      accessorKey: 'currency',
+      id: 'currency'
     },
     {
       accessorKey: "register",
@@ -32,10 +39,12 @@ export default function useDomainTable() {
     {
       accessorKey: "price",
       header: t('index.domainTable.header.price'),
-      cell: ({ row }) => {
-        const price = row.getValue<string>("price");
+      cell: async ({ row }) => {
+        const price = row.getValue<number>("price");
+        const from = row.getValue<string>('currency')
+        const finalPrice = convertCurrency(price, from, currentCurrency)
         return row.getValue<boolean>("available") ? (
-          <p>{price}</p>
+          <p>{finalPrice}</p>
         ) : (
           <p>/</p>
         );

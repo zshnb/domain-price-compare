@@ -31,7 +31,18 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
+    state: {
+      columnVisibility: {
+        icon: false,
+        currency: false,
+        price: true,
+        realPrice: true,
+        register: true,
+        available: true,
+        buyLink: true
+      }
+    }
   });
 
   return (
@@ -40,7 +51,7 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.filter(it => it.column.columnDef.id !== 'icon').map((header) => {
+              {headerGroup.headers.map((header) => {
                 return (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -62,7 +73,7 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
               >
-                {row.getVisibleCells().filter(it => it.column.columnDef.id !== 'icon').map((cell) => (
+                {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
