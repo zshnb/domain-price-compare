@@ -1,7 +1,7 @@
 import {ColumnDef} from "@tanstack/react-table";
-import {Check, MousePointer2, X} from "lucide-react";
+import { ArrowUpDown, Check, MousePointer2, X } from "lucide-react";
 import Link from "next/link";
-import {buttonVariants} from "@/components/ui/button";
+import {Button, buttonVariants} from "@/components/ui/button";
 import {useLocaleContext} from "@/context/LocaleContext";
 import {useTranslation} from "@/app/i18n/client";
 import { DomainInfo } from "@/types";
@@ -38,13 +38,26 @@ export default function useDomainTable() {
     },
     {
       accessorKey: "price",
-      header: t('index.domainTable.header.price'),
-      cell: async ({ row }) => {
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            {
+              t('index.domainTable.header.price')
+            }
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => {
         const price = row.getValue<number>("price");
         const from = row.getValue<string>('currency')
         const finalPrice = convertCurrency(price, from, currentCurrency)
+        const symbol = currentCurrency === 'USD' ? '$' : '¥'
         return row.getValue<boolean>("available") ? (
-          <p>{finalPrice}</p>
+          <p>{symbol + finalPrice}</p>
         ) : (
           <p>/</p>
         );
@@ -52,11 +65,26 @@ export default function useDomainTable() {
     },
     {
       accessorKey: "realPrice",
-      header: t('index.domainTable.header.realPrice'),
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            {
+              t('index.domainTable.header.realPrice')
+            }
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
       cell: ({ row }) => {
-        const price = row.getValue<string>("realPrice");
+        const price = row.getValue<number>("realPrice");
+        const from = row.getValue<string>('currency')
+        const finalPrice = convertCurrency(price, from, currentCurrency)
+        const symbol = currentCurrency === 'USD' ? '$' : '¥'
         return row.getValue<boolean>("available") ? (
-          <p>{price}</p>
+          <p>{symbol + finalPrice}</p>
         ) : (
           <p>/</p>
         );

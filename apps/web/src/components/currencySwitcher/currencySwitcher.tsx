@@ -17,7 +17,7 @@ export type CurrencySwitcherProps = {
 }
 export default function CurrencySwitcher({onCurrencyChange}: CurrencySwitcherProps) {
   const {lang} = useLocaleContext()
-  const [currency, setCurrency] = useState<Currency>('RMB')
+  const [currency, setCurrency] = useState<Currency>('USD')
   const {t} = useTranslation(lang)
   return (
     <Select value={currency} onValueChange={(value) => {

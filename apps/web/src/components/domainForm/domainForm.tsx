@@ -53,7 +53,7 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
       const json = await tencentResponse.json()
       onFetchDomainInfo(json.data)
       if (json.data.available) {
-        await Promise.all([...registers.filter(it => it !== 'tencent' && it !== 'godaddy').map(async it => {
+        await Promise.all([...registers.filter(it => it !== 'tencent').map(async it => {
           try {
             const res = await fetch(`/api/${it}?domain=${domain}`);
             if (res.ok) {

@@ -1,10 +1,10 @@
 "use client";
 import DomainForm from "@/components/domainForm/domainForm";
 import DomainTable from "@/components/domainTable/domainTable";
-import {useState} from "react";
+import { useState } from "react";
 import {useTranslation} from "@/app/i18n/client";
 import {LocaleContext} from "@/context/LocaleContext";
-import {DomainInfo, DomainRegister} from "@/types";
+import { Currency, DomainInfo, DomainRegister } from "@/types";
 import CurrencySwitcher from "@/components/currencySwitcher/currencySwitcher";
 import {CurrencyContext} from "@/context/CurrencyContext";
 
@@ -15,25 +15,15 @@ export default function Home({params}: {
     lang: params.locale
   }
   const {t} = useTranslation(params.locale)
-  const [domains, setDomains] = useState<DomainInfo[]>([
-    {
-      price: 13,
-      realPrice: 13,
-      register: DomainRegister.tencent,
-      domain: 'sll',
-      currency: 'USD',
-      available: true,
-      icon: '',
-      buyLink: 'https://www.baid.com'
-    }
-  ]);
+  const [domains, setDomains] = useState<DomainInfo[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [currencCurrency, setCurrencCurrency] = useState<Currency>('USD');
   return (
-    <CurrencyContext.Provider value={'RMB'}>
+    <CurrencyContext.Provider value={currencCurrency}>
       <LocaleContext.Provider value={localeContext}>
         <header className='border-b px-80 min-h-20 flex items-center justify-between'>
           <p className='font-extrabold text-2xl'>{t('index.headerLogo')}</p>
-          <CurrencySwitcher onCurrencyChange={() => {}}/>
+          <CurrencySwitcher onCurrencyChange={setCurrencCurrency}/>
         </header>
         <main className="flex min-h-screen flex-col items-center py-24 px-48">
           <DomainForm

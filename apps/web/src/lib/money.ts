@@ -12,5 +12,5 @@ export function convertCurrency(amount: number, from: string, to: string) {
     result = amount * crrncy[from][to];
   }
 
-  return result
+  return Math.floor(result * 100) / 100
 }

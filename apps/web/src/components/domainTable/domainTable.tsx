@@ -2,7 +2,7 @@
 
 import {
   flexRender,
-  getCoreRowModel,
+  getCoreRowModel, getSortedRowModel, SortingState,
   useReactTable
 } from "@tanstack/react-table";
 
@@ -19,12 +19,14 @@ import {useTranslation} from "@/app/i18n/client";
 import {useLocaleContext} from "@/context/LocaleContext";
 import useDomainTable from "@/hooks/useDomainTable";
 import { DomainInfo } from "@/types";
+import { useState } from "react";
 
 export type DomainTableProps = {
   data: DomainInfo[]
   loading: boolean
 }
 export default function DomainTable({ data, loading }: DomainTableProps) {
+  const [sorting, setSorting] = useState<SortingState>([])
   const lang = useLocaleContext().lang
   const {t} = useTranslation(lang)
   const {columns} = useDomainTable()
@@ -32,6 +34,8 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     state: {
       columnVisibility: {
         icon: false,
@@ -41,7 +45,8 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
         register: true,
         available: true,
         buyLink: true
-      }
+      },
+      sorting
     }
   });
 
