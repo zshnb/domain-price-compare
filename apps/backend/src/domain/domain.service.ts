@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import {
-  AliyunResponse,
+  AliyunResponse, Currency,
   DomainInfo,
   DomainResponse,
   GodaddyResponse,
@@ -26,17 +26,17 @@ export class DomainService {
           .fill(domain)
         await page.getByTestId('domain-search-box-input')
           .focus()
-        await page.waitForTimeout(200)
+        await page.waitForTimeout(500)
         await page.keyboard.press('Enter')
         const json = (await this.getRequestResponse({
           matchUrl: (url) => /https:\/\/.*godaddy.com(\/.*)?\/domainfind\/v1\/search\/exact.*/.test(url)
         }, page)) as GodaddyResponse
-        console.log(json);
+        const priceNumber = /\d+\.\d+/.exec(json.CurrentPriceDisplay)[0]
         return {
           domain,
-          price: 0,
-          realPrice: 0,
-          currency: 'USD',
+          price: parseFloat(priceNumber),
+          realPrice: parseFloat(priceNumber),
+          currency: json.Currency as Currency,
           available: true,
           buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
         }
@@ -274,12 +274,12 @@ export class DomainService {
     const dom = parse(json.content)
     const element = dom.querySelector('div.exact-valid-row > div > div > div.middle-group > div.search-price-group > div.search-price')
     const price = element.innerText
-    const priceNumber = parseFloat(price.replace('$', ''))
+    const priceNumber = parseFloat(price.replace(/[$¥]/, ''))
     return {
       domain,
       price: priceNumber,
       realPrice: priceNumber,
-      currency: 'USD',
+      currency: price.startsWith('$') ? 'USD' : 'RMB',
       available: true,
       buyLink: `https://www.dynadot.com/domain/search`
     }

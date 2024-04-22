@@ -1,4 +1,4 @@
-type Currency = 'USD' | 'RMB'
+export type Currency = 'USD' | 'RMB'
 export type DomainInfo ={
   domain: string
   price: number
@@ -49,6 +49,8 @@ export type DomainResponse = {
 
 export type GodaddyResponse = {
   CurrentPriceDisplay: string
+  Currency: string,
+  CurrencyRate: number,
   ExactMatchDomain: {
     IsAvailable: boolean
   }
