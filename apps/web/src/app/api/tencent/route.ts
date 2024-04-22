@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.tencent,
+          register: DomainRegister.byApi.tencent,
           icon: 'https://cloudcache.tencent-cloud.com/qcloud/favicon.ico'
         }
       })

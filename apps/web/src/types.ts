@@ -12,15 +12,20 @@ export type DomainInfo = {
 }
 
 export const DomainRegister = {
-  tencent: '腾讯云',
-  aliyun: '阿里云',
-  huawei: '华为云',
-  westCN: '西部数码',
-  xinnet: '新网',
-  godaddy: 'GoDaddy',
-  dynadot: 'dynadot',
-  namesilo: 'NameSilo',
-  namecheap: 'NameCheap',
-  domain: 'Domain',
-  register: 'register',
+  byApi: {
+    tencent: '腾讯云',
+    aliyun: '阿里云',
+    dynadot: 'dynadot',
+    namesilo: 'NameSilo',
+    xinnet: '新网',
+    westCN: '西部数码',
+
+  },
+  byCrawl: {
+    huawei: '华为云',
+    godaddy: 'GoDaddy',
+    namecheap: 'NameCheap',
+    domain: 'Domain',
+    register: 'register',
+  }
 }

@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import { DomainRegister } from "@/types";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.godaddy,
+          register: DomainRegister.byCrawl.godaddy,
           icon: 'https://img6.wsimg.com/ux/favicon/favicon-32x32.png'
         }
       })

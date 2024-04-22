@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.domain,
+          register: DomainRegister.byCrawl.domain,
           icon: '/icons/domain.ico'
         }
       })

@@ -62,7 +62,7 @@ export class DomainService {
         if (!price) {
           throw new Error('namecheap search domain info error')
         }
-        const priceNumber = parseFloat(/\d+\.\d+]/.exec(price)[0])
+        const priceNumber = parseFloat(/\d+\.\d+/.exec(price)[0])
         return {
           available: true,
           price: priceNumber,

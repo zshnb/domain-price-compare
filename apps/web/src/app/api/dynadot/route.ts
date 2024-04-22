@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.dynadot,
+          register: DomainRegister.byApi.dynadot,
           icon: 'https://www.dynadot.com/favicon.ico'
         }
       })

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.xinnet,
+          register: DomainRegister.byApi.xinnet,
           icon: 'https://www.xinnet.com/favicon.ico'
         }
       })

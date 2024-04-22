@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.westCN,
+          register: DomainRegister.byApi.westCN,
           icon: 'https://www.west.cn/favicon.ico'
         }
       })

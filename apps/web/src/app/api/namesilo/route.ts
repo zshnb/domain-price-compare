@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.namesilo,
+          register: DomainRegister.byApi.namesilo,
           icon: 'https://www.namesilo.com/favicon.ico'
         }
       })
