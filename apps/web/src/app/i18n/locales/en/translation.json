@@ -5,6 +5,7 @@
   },
   "index": {
     "headerLogo": "Best Domain Price",
+    "currencySwitcherLabel": "Select currency",
     "domainForm": {
       "invalidDomainMessage": "Invalid domain",
       "domainInputPlaceholder": "Please type domain",

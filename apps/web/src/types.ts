@@ -1,8 +1,11 @@
+export type Currency = 'USD' | 'RMB'
+
 export type DomainInfo = {
   register: string
   domain: string
-  price: string
-  realPrice: string
+  price: number
+  realPrice: number
+  currency: Currency
   available: boolean
   icon: string
   buyLink?: string

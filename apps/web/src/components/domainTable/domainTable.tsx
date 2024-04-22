@@ -2,7 +2,7 @@
 
 import {
   flexRender,
-  getCoreRowModel,
+  getCoreRowModel, getSortedRowModel, SortingState,
   useReactTable
 } from "@tanstack/react-table";
 
@@ -19,19 +19,35 @@ import {useTranslation} from "@/app/i18n/client";
 import {useLocaleContext} from "@/context/LocaleContext";
 import useDomainTable from "@/hooks/useDomainTable";
 import { DomainInfo } from "@/types";
+import { useState } from "react";
 
 export type DomainTableProps = {
   data: DomainInfo[]
   loading: boolean
 }
 export default function DomainTable({ data, loading }: DomainTableProps) {
+  const [sorting, setSorting] = useState<SortingState>([])
   const lang = useLocaleContext().lang
   const {t} = useTranslation(lang)
   const {columns} = useDomainTable()
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel()
+    getCoreRowModel: getCoreRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      columnVisibility: {
+        icon: false,
+        currency: false,
+        price: true,
+        realPrice: true,
+        register: true,
+        available: true,
+        buyLink: true
+      },
+      sorting
+    }
   });
 
   return (
@@ -40,7 +56,7 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.filter(it => it.column.columnDef.id !== 'icon').map((header) => {
+              {headerGroup.headers.map((header) => {
                 return (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -62,7 +78,7 @@ export default function DomainTable({ data, loading }: DomainTableProps) {
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
               >
-                {row.getVisibleCells().filter(it => it.column.columnDef.id !== 'icon').map((cell) => (
+                {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
