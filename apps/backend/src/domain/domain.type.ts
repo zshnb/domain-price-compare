@@ -87,3 +87,11 @@ export type XinnetResponse = {
     }[]
   }[]
 }
+
+export type HuaweiResponse = {
+  productRatingResult: {
+    amount: number
+    discountAmount: number
+    originalAmount: number
+  }[]
+}

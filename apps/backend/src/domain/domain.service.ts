@@ -3,7 +3,7 @@ import {
   AliyunResponse, Currency,
   DomainInfo,
   DomainResponse,
-  GodaddyResponse,
+  GodaddyResponse, HuaweiResponse,
   NameSiloResponse,
   RegisterResponse, WestCNResponse, XinnetResponse
 } from "./domain.type";
@@ -396,23 +396,29 @@ export class DomainService {
 
   async huawei(domain: string): Promise<DomainInfo> {
     const array = domain.split('.')
-    return this.crawler.doCrawler({
-      url: `https://www.huaweicloud.com/product/domain/search.html?domainName=${domain}&domainSuffix=.${array[1]}`,
-      headless: true,
-      processPage: async (page) => {
-        await page.waitForTimeout(2000)
-        const price = parseFloat(await page.locator("#singleSearchResult > li.list-item.perfetct-padding > div > div.item-section.item-price-box.cf.find-price-box > div.list-more-price-box.item-price-right > div.list-more-price.item-price-left > span.item-price-color > span.item-price-num")
-          .innerText())
-        return {
-          domain,
-          price,
-          realPrice: price,
-          currency: 'RMB',
-          available: true,
-          buyLink: `https://www.register.com/products/domain/domain-search-results`
-        }
-      }
+    const requestBody = '{"chargingMode":2,"periodNum":1,"periodType":3,"productInfos":[{"id":"register.com","cloudServiceType":"hws.service.type.domains","resourceType":"hws.resource.type.register","resourceSpecCode":"1.register.com"}],"regionId":"global-cbc-1","subscriptionNum":1,"tenantId":""}'
+    const response = await fetch('https://portal.huaweicloud.com/api/cbc/global/rest/BSS/billing/ratingservice/v2/inquiry/resource', {
+      method: 'POST',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0',
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: requestBody
     })
+    if (!response.ok) {
+      console.log(await response.text());
+      throw new Error('get huawei cloud domain info error')
+    }
+    const json = await response.json() as HuaweiResponse
+    const priceInfo = json.productRatingResult[0]
+    return {
+      domain,
+      price: priceInfo.originalAmount,
+      realPrice: priceInfo.amount,
+      currency: "RMB",
+      available: true,
+      buyLink: `https://www.huaweicloud.com/product/domain/search.html?domainName=${array[0]}&domainSuffix=.${array[1]}`
+    };
   }
 
   private getRequestResponse(

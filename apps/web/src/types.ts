@@ -19,10 +19,9 @@ export const DomainRegister = {
     namesilo: 'NameSilo',
     xinnet: '新网',
     westCN: '西部数码',
-
+    huawei: '华为云',
   },
   byCrawl: {
-    huawei: '华为云',
     godaddy: 'GoDaddy',
     namecheap: 'NameCheap',
     domain: 'Domain',
