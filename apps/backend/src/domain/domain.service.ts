@@ -36,7 +36,7 @@ export class DomainService {
           domain,
           price: parseFloat(priceNumber),
           realPrice: parseFloat(priceNumber),
-          currency: json.Currency as Currency,
+          currency: json.ClientRequestIn.Currency as Currency,
           available: true,
           buyLink: `https://www.godaddy.com/domainsearch/find?domainToCheck=${domain}`
         }

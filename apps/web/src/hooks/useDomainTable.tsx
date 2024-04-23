@@ -1,18 +1,31 @@
-import {ColumnDef} from "@tanstack/react-table";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { ArrowUpDown, Check, MousePointer2, X } from "lucide-react";
 import Link from "next/link";
-import {Button, buttonVariants} from "@/components/ui/button";
-import {useLocaleContext} from "@/context/LocaleContext";
-import {useTranslation} from "@/app/i18n/client";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { useLocaleContext } from "@/context/LocaleContext";
+import { useTranslation } from "@/app/i18n/client";
 import { DomainInfo } from "@/types";
 import Image from "next/image";
-import {convertCurrency} from "@/lib/money";
-import {useCurrencyContext} from "@/context/CurrencyContext";
+import { convertCurrency } from "@/lib/money";
+import { useCurrencyContext } from "@/context/CurrencyContext";
 
 export default function useDomainTable() {
   const lang = useLocaleContext().lang
   const currentCurrency = useCurrencyContext()
   const {t} = useTranslation(lang)
+
+  function getFinalPrice(row: Row<DomainInfo>) {
+    const price = row.getValue<number>("price");
+    const from = row.getValue<string>('currency')
+    return convertCurrency(price, from, currentCurrency)
+  }
+  function sortPrice(rowA: Row<DomainInfo>, rowB: Row<DomainInfo>, columnId: string) {
+    const priceA = getFinalPrice(rowA)
+    const priceB = getFinalPrice(rowB)
+    if (priceA < priceB) return -1
+    if (priceA === priceB) return 0
+    else return 1
+  }
   const columns: ColumnDef<DomainInfo>[] = [
     {
       accessorKey: 'icon',
@@ -52,16 +65,15 @@ export default function useDomainTable() {
         )
       },
       cell: ({ row }) => {
-        const price = row.getValue<number>("price");
-        const from = row.getValue<string>('currency')
-        const finalPrice = convertCurrency(price, from, currentCurrency)
+        const finalPrice = getFinalPrice(row)
         const symbol = currentCurrency === 'USD' ? '$' : '¥'
         return row.getValue<boolean>("available") ? (
           <p>{symbol + finalPrice}</p>
         ) : (
           <p>/</p>
         );
-      }
+      },
+      sortingFn: sortPrice
     },
     {
       accessorKey: "realPrice",
@@ -79,16 +91,15 @@ export default function useDomainTable() {
         )
       },
       cell: ({ row }) => {
-        const price = row.getValue<number>("realPrice");
-        const from = row.getValue<string>('currency')
-        const finalPrice = convertCurrency(price, from, currentCurrency)
+        const finalPrice = getFinalPrice(row)
         const symbol = currentCurrency === 'USD' ? '$' : '¥'
         return row.getValue<boolean>("available") ? (
           <p>{symbol + finalPrice}</p>
         ) : (
           <p>/</p>
         );
-      }
+      },
+      sortingFn: sortPrice
     },
     {
       accessorKey: "available",

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.byCrawl.huawei,
+          register: DomainRegister.byApi.huawei,
           icon: 'https://www.huaweicloud.com/favicon.ico'
         }
       })
