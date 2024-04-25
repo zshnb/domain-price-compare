@@ -1,4 +1,4 @@
-import "./globals.css"
+import "../globals.css"
 import { Inter as FontSans } from "next/font/google"
 
 import { cn } from "@/lib/utils"
@@ -24,7 +24,7 @@ export default async function RootLayout({ children, params }: {children: ReactN
   return (
     <html lang={params.lng} suppressHydrationWarning>
     <head>
-      <link rel="icon" href="/apps/web/src/app/[locale]/icon.png" sizes="any" />
+      <link rel="icon" href="/apps/web/src/app/icon.png" sizes="any" />
       <title>{t('metadata.title')}</title>
     </head>
     <body
