@@ -4,6 +4,7 @@ import { Inter as FontSans } from "next/font/google"
 import { cn } from "@/lib/utils"
 import {ReactNode} from "react";
 import { useTranslation } from "@/app/i18n";
+export const runtime = 'edge';
 
 const fontSans = FontSans({
   subsets: ["latin"],

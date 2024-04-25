@@ -7,6 +7,7 @@ import {LocaleContext} from "@/context/LocaleContext";
 import { Currency, DomainInfo, DomainRegister } from "@/types";
 import CurrencySwitcher from "@/components/currencySwitcher/currencySwitcher";
 import {CurrencyContext} from "@/context/CurrencyContext";
+export const runtime = 'edge';
 
 export default function Home({params}: {
   params: { locale: string }
