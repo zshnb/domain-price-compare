@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams
   const domain = params.get('domain')
   try {
-    const response = await fetch(`${getRequestContext().env.NEXT_PUBLIC_SERVER_ORIGIN}/domain/tencent?domain=${domain}`)
+    const response = await fetch(`${(getRequestContext().env as any).NEXT_PUBLIC_SERVER_ORIGIN}/domain/tencent?domain=${domain}`)
     if (response.ok) {
       const json = await response.json()
       return NextResponse.json({
