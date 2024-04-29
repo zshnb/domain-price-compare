@@ -24,7 +24,7 @@ export class Crawler {
     return new Promise(async (resolve, reject) => {
       const crawler = new PlaywrightCrawler({
         requestQueue,
-        requestHandlerTimeoutSecs: 20,
+        requestHandlerTimeoutSecs: 6,
         maxRequestRetries: 3,
         headless,
         requestHandler: async ({ page }) => {
