@@ -1,13 +1,12 @@
 import {NextRequest, NextResponse} from "next/server";
 import { DomainRegister } from "@/types";
-import { getRequestContext } from "@cloudflare/next-on-pages";
 export const runtime = 'edge'
 
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams
   const domain = params.get('domain')
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ORIGIN}/domain/tencent?domain=${domain}`)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ORIGIN}/api/domain/tencent?domain=${domain}`)
     if (response.ok) {
       const json = await response.json() as any
       return NextResponse.json({
