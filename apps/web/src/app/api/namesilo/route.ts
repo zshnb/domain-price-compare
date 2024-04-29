@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
         data: {
           ...json.data,
           register: DomainRegister.byApi.namesilo,
-          icon: 'https://www.namesilo.com/favicon.ico'
+          icon: '/icons/namesilo.ico'
         }
       })
     } else {

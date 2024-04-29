@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
         data: {
           ...json.data,
           register: DomainRegister.byApi.westCN,
-          icon: 'https://www.west.cn/favicon.ico'
+          icon: '/icons/westCN.ico'
         }
       })
     } else {
