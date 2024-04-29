@@ -1,15 +1,15 @@
 import {NextRequest, NextResponse} from "next/server";
 import { DomainRegister } from "@/types";
-import {getRequestContext} from "@cloudflare/next-on-pages";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 export const runtime = 'edge'
 
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams
   const domain = params.get('domain')
   try {
-    const response = await fetch(`${(getRequestContext().env as any).NEXT_PUBLIC_SERVER_ORIGIN}/domain/tencent?domain=${domain}`)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ORIGIN}/domain/tencent?domain=${domain}`)
     if (response.ok) {
-      const json = await response.json()
+      const json = await response.json() as any
       return NextResponse.json({
         data: {
           ...json.data,
@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
       })
     }
   } catch (error) {
+    console.error('fetch error', error);
     return NextResponse.json({}, {
       status: 400
     })

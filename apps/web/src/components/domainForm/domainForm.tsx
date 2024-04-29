@@ -50,15 +50,15 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
     const domain = `${values.domain}${values.tld}`
     try {
       const tencentResponse = await fetch(`/api/tencent?domain=${domain}`)
-      const json = await tencentResponse.json()
+      const json = await tencentResponse.json() as any
       onFetchDomainInfo(json.data)
       if (json.data.available) {
         await Promise.all([...parallelRegisters.filter(it => it !== 'tencent').map(async it => {
           try {
             const res = await fetch(`/api/${it}?domain=${domain}`);
             if (res.ok) {
-              const json = await res.json();
-              onFetchDomainInfo(json.data);
+              const json = await res.json() as any
+              onFetchDomainInfo(json.data)
             }
           } catch (error) {
             console.error(error);
@@ -68,8 +68,8 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
           try {
             const res = await fetch(`/api/${key}?domain=${domain}`);
             if (res.ok) {
-              const json = await res.json();
-              onFetchDomainInfo(json.data);
+              const json = await res.json() as any
+              onFetchDomainInfo(json.data)
             }
           } catch (error) {
             console.error(error);

@@ -1,0 +1,7 @@
+name = "domain-price"
+
+compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2024-04-28"
+
+[env.production.vars]
+NEXT_PUBLIC_SERVER_ORIGIN = "https://api.domainprice.cc/api"

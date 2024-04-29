@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ORIGIN}/domain/namesilo?domain=${domain}`)
     if (response.ok) {
-      const json = await response.json()
+      const json = await response.json() as any
       return NextResponse.json({
         data: {
           ...json.data,
