@@ -5,9 +5,8 @@ export const runtime = 'edge'
 export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams
   const domain = params.get('domain')
-  console.log('process env', process.env);
   try {
-    const response = await fetch(`https://api.domainprice.cc/api/domain/tencent?domain=${domain}`)
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ORIGIN}/domain/tencent?domain=${domain}`)
     if (response.ok) {
       const json = await response.json() as any
       return NextResponse.json({
