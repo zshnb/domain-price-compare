@@ -4,7 +4,7 @@ import DomainTable from "@/components/domainTable/domainTable";
 import { useState } from "react";
 import {useTranslation} from "@/app/i18n/client";
 import {LocaleContext} from "@/context/LocaleContext";
-import { Currency, DomainInfo, DomainRegister } from "@/types";
+import { Currency, DomainInfo } from "@/types";
 import CurrencySwitcher from "@/components/currencySwitcher/currencySwitcher";
 import {CurrencyContext} from "@/context/CurrencyContext";
 export const runtime = 'edge';

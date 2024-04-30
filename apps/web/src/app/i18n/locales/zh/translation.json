@@ -5,6 +5,7 @@
   },
   "index": {
     "headerLogo": "域名比价",
+    "currencySwitcherLabel": "选择货币",
     "domainForm": {
       "invalidDomainMessage": "域名不合法",
       "domainInputPlaceholder": "请输入域名",
