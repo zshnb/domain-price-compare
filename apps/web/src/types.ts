@@ -15,7 +15,7 @@ export const DomainRegister = {
   byApi: {
     tencent: '腾讯云',
     aliyun: '阿里云',
-    dynadot: 'dynadot',
+    dynadot: 'Dynadot',
     namesilo: 'NameSilo',
     xinnet: '新网',
     westCN: '西部数码',
@@ -25,6 +25,6 @@ export const DomainRegister = {
     godaddy: 'GoDaddy',
     namecheap: 'NameCheap',
     domain: 'Domain',
-    register: 'register',
+    register: 'Register',
   }
 }

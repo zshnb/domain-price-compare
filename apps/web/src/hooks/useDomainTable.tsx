@@ -39,7 +39,7 @@ export default function useDomainTable() {
       accessorKey: "register",
       header: t('index.domainTable.header.register'),
       cell: ({ row }) => {
-        const register = row.getValue<string>("register");
+        const register = t(`index.domainTable.body.register.${row.getValue<string>("register")}`);
         const icon = row.getValue<string>('icon')
         return (
           <div className={'flex gap-x-2 items-center'}>

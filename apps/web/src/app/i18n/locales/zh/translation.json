@@ -22,6 +22,21 @@
         "realPrice": "优惠价",
         "status": "状态",
         "buyLink": "购买链接"
+      },
+      "body": {
+        "register": {
+          "腾讯云": "腾讯云",
+          "阿里云": "阿里云",
+          "新网": "新网",
+          "西部数码": "西部数码",
+          "华为云": "华为云",
+          "Dynadot": "Dynadot",
+          "NameSilo": "NameSilo",
+          "GoDaddy": "GoDaddy",
+          "NameCheap": "NameCheap",
+          "Domain": "Domain",
+          "Register": "Register"
+        }
       }
     }
   }
