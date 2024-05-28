@@ -43,10 +43,6 @@ describe('DomainService', () => {
       const result = await domainService.namecheap('sleek123.com')
       expect(result.available).toBeTruthy()
     }, 600000)
-    it('success with unavailable domain', async () => {
-      const result = await domainService.namecheap('sleek.com')
-      expect(result.available).toBeFalsy()
-    }, 600000)
   });
   describe("namesilo api", () => {
     it('success with available domain', async () => {

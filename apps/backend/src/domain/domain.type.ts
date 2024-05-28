@@ -8,6 +8,16 @@ export type DomainInfo ={
   buyLink?: string
 }
 
+export type NameCheapResponse = {
+  Name: string
+  Pricing: {
+    Price: number
+    Renewal: number
+    Duration: number
+    DurationType: string
+  }
+}
+
 export type NameSiloResponse = {
   data: {
     domains: {

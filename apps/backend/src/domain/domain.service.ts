@@ -3,7 +3,7 @@ import {
   AliyunResponse, Currency,
   DomainInfo,
   DomainResponse,
-  GodaddyResponse, HuaweiResponse,
+  GodaddyResponse, HuaweiResponse, NameCheapResponse,
   NameSiloResponse,
   RegisterResponse, WestCNResponse, XinnetResponse
 } from "./domain.type";
@@ -45,34 +45,23 @@ export class DomainService {
   }
 
   async namecheap(domain: string): Promise<DomainInfo> {
-    return this.crawler.doCrawler({
-      url: `https://www.namecheap.com/domains/registration/results/?domain=${domain}`,
-      headless: false,
-      processPage: async (page) => {
-        await page.locator('section.standard', {
-          has: page.locator('article.available,article.unavailable')
-        })
-          .waitFor({
-            state: 'visible'
-          })
-
-        const locator = page.locator('section.standard > article.available')
-        const price = await locator.locator('div.price > strong')
-          .innerText()
-        if (!price) {
-          throw new Error('namecheap search domain info error')
-        }
-        const priceNumber = parseFloat(/\d+\.\d+/.exec(price)[0])
-        return {
-          available: true,
-          price: priceNumber,
-          realPrice: priceNumber,
-          currency: 'USD',
-          domain,
-          buyLink: `https://www.namecheap.com/domains/registration/results/?domain=${domain}`
-        }
-      }
+    const response = await fetch('https://d1dijnkjnmzy2z.cloudfront.net/tlds.json', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0'
+      },
     })
+
+    const array = domain.split('.');
+    const data = (await response.json()) as NameCheapResponse[]
+    const price = data.find(it => it.Name === array[1])
+    return {
+      available: true,
+      price: price.Pricing.Price,
+      realPrice: price.Pricing.Price,
+      currency: 'USD',
+      domain,
+      buyLink: `https://www.namecheap.com/domains/registration/results/?domain=${domain}`
+    }
   }
 
   async namesilo(domain: string): Promise<DomainInfo> {
