@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({
         data: {
           ...json.data,
-          register: DomainRegister.byCrawl.namecheap,
+          register: DomainRegister.byApi.namecheap,
           icon: 'https://www.namecheap.com/assets/img/nc-icon/favicon.ico'
         }
       })

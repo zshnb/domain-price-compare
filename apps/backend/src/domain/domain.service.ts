@@ -11,6 +11,7 @@ import sleep from "sleep-promise";
 import { Crawler } from "./crawler";
 import parse from "node-html-parser";
 import {Page} from "playwright";
+import crc32 from "crc-32";
 
 @Injectable()
 export class DomainService {
@@ -45,6 +46,43 @@ export class DomainService {
   }
 
   async namecheap(domain: string): Promise<DomainInfo> {
+    /*
+    /* use for namecheap api generate signature rcs
+    * @param url: https://aftermarket.namecheapapi.com/domain/status
+    * */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function calculateRequestSignature(method: string, url: URL, type: string = 'nc') {
+      const key =
+        type === "revved" ? "8f6c7d5691eebd3b5090dc6b06755d58" : "815e7ef93be85bebe5959f6f72d7e542";
+      const nonce = [...Array(32)].map(() => Math.floor(Math.random() * 16).toString(16)).join("");
+      let toSign = key + " " + nonce + " " + method.toUpperCase() + " " + url.pathname + " ";
+      const paramsToSign = [];
+
+      if (url.search && url.search.length > 0 && url.search[0] == "?") {
+        const params = url.search.substring(1).split("&");
+        for (let x = 0; x < params.length; x++) {
+          const kv = params[x].split("=");
+          if (kv.length == 2) {
+            if (kv[0] != "rcs") paramsToSign.push([kv[0], kv[1]]);
+          }
+        }
+      }
+      paramsToSign.sort((a, b) => {
+        if (a[0] < b[0]) return -1;
+        else if (a[0] > b[0]) return 1;
+        else return 0;
+      });
+      toSign += paramsToSign.map(p => p[0] + "=" + encodeURIComponent(p[1])).join("&");
+
+      const checksumStr = JSON.stringify({ val: crc32.str(toSign), n: nonce });
+      let encodedStr = "";
+      for (let x = 0; x < checksumStr.length; x++) {
+        encodedStr += String.fromCharCode(checksumStr.charCodeAt(x) ^ 0x49);
+      }
+
+      return btoa(encodedStr);
+    }
+
     const response = await fetch('https://d1dijnkjnmzy2z.cloudfront.net/tlds.json', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0'

@@ -20,10 +20,10 @@ export const DomainRegister = {
     xinnet: '新网',
     westCN: '西部数码',
     huawei: '华为云',
+    namecheap: 'NameCheap',
   },
   byCrawl: {
     godaddy: 'GoDaddy',
-    namecheap: 'NameCheap',
     domain: 'Domain',
     register: 'Register',
   }

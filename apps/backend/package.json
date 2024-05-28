@@ -27,6 +27,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/throttler": "^5.1.2",
     "crawlee": "^3.8.2",
+    "crc-32": "^1.2.2",
     "form-data-encoder": "^4.0.2",
     "formdata-node": "^6.0.3",
     "https-proxy-agent": "^7.0.4",
