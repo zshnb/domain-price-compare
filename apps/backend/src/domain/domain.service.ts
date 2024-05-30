@@ -48,8 +48,9 @@ export class DomainService {
   async namecheap(domain: string): Promise<DomainInfo> {
     /*
     /* use for namecheap api generate signature rcs
-    * @param url: https://aftermarket.namecheapapi.com/domain/status
-    * */
+     * @param url: https://aftermarket.namecheapapi.com/domain/status
+     *
+    */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function calculateRequestSignature(method: string, url: URL, type: string = 'nc') {
       const key =
@@ -254,33 +255,46 @@ export class DomainService {
   }
 
   async domain(domain: string): Promise<DomainInfo> {
-    return this.crawler.doCrawler({
-      url: 'https://www.domain.com',
-      headless: false,
-      processPage: async (page) => {
-        await page.getByPlaceholder('Find and purchase a domain name')
-          .fill(domain)
-
-        const searchButton = page.locator('.body')
-          .locator('.domainSearch__form')
-          .locator('.domainSearch__submit')
-          .first()
-        await searchButton.click()
-
-        const json = (await this.getRequestResponse({
-          matchUrl: (url) => url === 'https://www.domain.com/sfcore.do?searchDomain'
-        },  page)) as DomainResponse
-        const domainInfo = json.response.data.searchedDomains[0]
-        return {
-          domain,
-          price: domainInfo.terms[0].price,
-          realPrice: domainInfo.terms[0].price,
-          currency: 'USD',
-          available: true,
-          buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
-        }
+    const array = domain.split('.')
+    const request = {
+      request: {
+        requestInfo: {
+          service: "DomainAPI",
+          method: "searchDomain",
+          clientId: "Reggie",
+          apiAccessKey: "rfthmxdv2ghkycnodakkby4s9iu"
+        },
+        fromEdsPath: true,
+        domainName: domain,
+        domainNames: [domain],
+        useConfigTlds: true,
+        heckExactMatchAvailability: true,
+        spinSearch: true,
+        tlds: [array[1]],
+        addToCart: false,
+        aftermarket: true,
+        registryPremium: true
       }
+    };
+    const response = await fetch('https://www.domain.com/sfcore.do?searchDomain', {
+      method: 'post',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'Content-Type': 'application/json',
+        'x-api-key': 'rfthmxdv2ghkycnodakkby4s9iu'
+      },
+      body: JSON.stringify(request)
     })
+    const json = await response.json() as DomainResponse
+    const domainInfo = json.response.data.searchedDomains[0]
+    return {
+      domain,
+      price: domainInfo.terms[0].price,
+      realPrice: domainInfo.terms[0].price,
+      currency: 'USD',
+      available: true,
+      buyLink: `https://www.domain.com/registration/?flow=jdomainDFE&endpoint=jarvis&search=${domain}#/jdomainDFE/1`
+    }
   }
 
   async dynadot(domain: string): Promise<DomainInfo> {
