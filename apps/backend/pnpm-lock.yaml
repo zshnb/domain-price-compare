@@ -32,9 +32,6 @@ dependencies:
   crc-32:
     specifier: ^1.2.2
     version: 1.2.2
-  crc32:
-    specifier: ^0.2.2
-    version: 0.2.2
   form-data-encoder:
     specifier: ^4.0.2
     version: 4.0.2
@@ -3227,12 +3224,6 @@ packages:
   /crc-32@1.2.2:
     resolution: {integrity: sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ==}
     engines: {node: '>=0.8'}
-    hasBin: true
-    dev: false
-
-  /crc32@0.2.2:
-    resolution: {integrity: sha512-PFZEGbDUeoNbL2GHIEpJRQGheXReDody/9axKTxhXtQqIL443wnNigtVZO9iuCIMPApKZRv7k2xr8euXHqNxQQ==}
-    engines: {node: '>= 0.4.0'}
     hasBin: true
     dev: false
 

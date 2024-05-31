@@ -64,17 +64,6 @@ export default function DomainForm({onFetchDomainInfo, onStart, onFinish}: Domai
             console.error(error);
           }
         })])
-        for (const key in DomainRegister.byCrawl) {
-          try {
-            const res = await fetch(`/api/${key}?domain=${domain}`);
-            if (res.ok) {
-              const json = await res.json() as any
-              onFetchDomainInfo(json.data)
-            }
-          } catch (error) {
-            console.error(error);
-          }
-        }
       }
     } catch (e) {
     } finally {
