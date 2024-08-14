@@ -1,5 +1,5 @@
 export type Currency = 'USD' | 'RMB' | 'HKD'
-export type DomainInfo ={
+export type DomainInfo = {
   domain: string
   price: number
   realPrice: number
@@ -21,8 +21,8 @@ export type NameCheapResponse = {
 export type NameSiloResponse = {
   data: {
     domains: {
-      available: boolean,
-      domain: string,
+      available: boolean
+      domain: string
       currentPrice: number
     }[]
   }
@@ -63,8 +63,8 @@ export type GodaddyResponse = {
     IsAvailable: boolean
   }
   ClientRequestIn: {
-    CurrencyRate: number,
-    Currency: string,
+    CurrencyRate: number
+    Currency: string
   }
 }
 

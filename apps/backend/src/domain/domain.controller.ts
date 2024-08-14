@@ -1,6 +1,12 @@
-import { BadRequestException, Controller, Get, Query, UseGuards } from "@nestjs/common";
-import { DomainService } from './domain.service';
-import { ThrottlerGuard } from "@nestjs/throttler";
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+} from '@nestjs/common'
+import { DomainService } from './domain.service'
+import { ThrottlerGuard } from '@nestjs/throttler'
 
 @Controller('domain')
 @UseGuards(ThrottlerGuard)
@@ -63,7 +69,7 @@ export class DomainController {
         data: result,
       }
     } catch (e) {
-      console.error('tencent api error', e);
+      console.error('tencent api error', e)
       throw new BadRequestException()
     }
   }
@@ -76,7 +82,7 @@ export class DomainController {
         data: result,
       }
     } catch (e) {
-      console.error('domain api error', e);
+      console.error('domain api error', e)
       throw new BadRequestException()
     }
   }
@@ -89,7 +95,7 @@ export class DomainController {
         data: result,
       }
     } catch (e) {
-      console.error('domain api error', e);
+      console.error('domain api error', e)
       throw new BadRequestException()
     }
   }
@@ -102,7 +108,7 @@ export class DomainController {
         data: result,
       }
     } catch (e) {
-      console.error('domain api error', e);
+      console.error('domain api error', e)
       throw new BadRequestException()
     }
   }
@@ -115,7 +121,7 @@ export class DomainController {
         data: result,
       }
     } catch (e) {
-      console.error('domain api error', e);
+      console.error('domain api error', e)
       throw new BadRequestException()
     }
   }
@@ -128,7 +134,7 @@ export class DomainController {
         data: result,
       }
     } catch (e) {
-      console.error('domain api error', e);
+      console.error('domain api error', e)
       throw new BadRequestException()
     }
   }
@@ -141,7 +147,7 @@ export class DomainController {
         data: result,
       }
     } catch (e) {
-      console.error('domain api error', e);
+      console.error('domain api error', e)
       throw new BadRequestException()
     }
   }
