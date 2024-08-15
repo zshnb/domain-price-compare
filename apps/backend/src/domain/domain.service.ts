@@ -373,7 +373,6 @@ export class DomainService {
       },
       body: JSON.stringify(request)
     })
-    console.log(await response.text());
     const json = await response.json() as DomainResponse
     const domainInfo = json.response.data.searchedDomains[0]
     return {
